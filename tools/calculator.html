@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced EMI & Interest Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .calculator-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .tab-button {
+            padding: 12px 30px;
+            background: rgba(255,255,255,0.2);
+            border: 2px solid rgba(255,255,255,0.3);
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .tab-button:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .tab-button.active {
+            background: white;
+            color: #667eea;
+        }
+
+        .calculator-content {
+            display: none;
+        }
+
+        .calculator-content.active {
+            display: block;
+        }
+
+        .method-selector {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-bottom: 2px solid #eee;
+        }
+
+        .method-button {
+            padding: 10px 25px;
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            color: #555;
+        }
+
+        .method-button:hover {
+            border-color: #667eea;
+        }
+
+        .method-button.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 40px;
+        }
+
+        .input-section {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .input-group label {
+            font-weight: 600;
+            color: #333;
+            font-size: 1.1em;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .input-group label .value-display {
+            color: #667eea;
+            font-size: 1.2em;
+        }
+
+        .input-group input[type="range"] {
+            width: 100%;
+            height: 8px;
+            border-radius: 5px;
+            background: #ddd;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .input-group input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .input-group input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .input-group input[type="number"],
+        .input-group input[type="date"],
+        .input-group select {
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1.1em;
+            transition: border-color 0.3s;
+        }
+
+        .input-group input[type="number"]:focus,
+        .input-group input[type="date"]:focus,
+        .input-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .result-section {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 15px;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .result-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .result-card h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        .result-card .amount {
+            font-size: 2em;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .breakdown {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .breakdown-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .breakdown-item .label {
+            font-weight: 600;
+            color: #555;
+        }
+
+        .breakdown-item .value {
+            font-weight: bold;
+            color: #667eea;
+            font-size: 1.2em;
+        }
+
+        .chart-container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .chart {
+            width: 200px;
+            height: 200px;
+            margin: 20px auto;
+            position: relative;
+        }
+
+        .pie-chart {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: conic-gradient(
+                #667eea 0deg,
+                #667eea var(--principal-angle),
+                #764ba2 var(--principal-angle),
+                #764ba2 360deg
+            );
+        }
+
+        .chart-legend {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 20px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+        }
+
+        .schedule-table {
+            margin-top: 30px;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            background: #667eea;
+            color: white;
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .download-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            padding: 20px 40px;
+            background: #f8f9fa;
+        }
+
+        .download-btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .download-btn.pdf {
+            background: #dc3545;
+            color: white;
+        }
+
+        .download-btn.jpg {
+            background: #28a745;
+            color: white;
+        }
+
+        .download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .result-card .amount {
+                font-size: 1.5em;
+            }
+
+            .calculator-tabs {
+                flex-direction: column;
+            }
+
+            .download-buttons {
+                flex-direction: column;
+            }
+        }
+
+        .note {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 5px;
+            color: #856404;
+        }
+
+        .toolroom-watermark {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            font-size: 1.5em;
+            font-weight: bold;
+            color: rgba(255,255,255,0.9);
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            display: none;
+        }
+
+        .toolroom-watermark.show {
+            display: block;
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            
+            .download-buttons {
+                display: none;
+            }
+            
+            .toolroom-watermark {
+                display: block !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="mainContainer">
+        <div class="header">
+            <div class="toolroom-watermark" id="watermark">ToolRoom</div>
+            <h1>🏦 Advanced Calculator</h1>
+            <p>EMI और Interest की सटीक गणना करें</p>
+            
+            <div class="calculator-tabs">
+                <button class="tab-button active" id="emiTab">EMI Calculator</button>
+                <button class="tab-button" id="interestTab">Interest Calculator</button>
+            </div>
+        </div>
+
+        <!-- EMI Calculator -->
+        <div id="emi-calculator" class="calculator-content active">
+            <div class="method-selector">
+                <button class="method-button active" id="reducingBtn">Reducing Balance Method</button>
+                <button class="method-button" id="flatBtn">Flat Rate Method</button>
+            </div>
+
+            <div class="content">
+                <div class="input-section">
+                    <div class="input-group">
+                        <label>
+                            <span>लोन राशि (Loan Amount)</span>
+                            <span class="value-display">₹<span id="loanDisplay">500000</span></span>
+                        </label>
+                        <input type="range" id="loanAmount" min="10000" max="10000000" step="10000" value="500000">
+                        <input type="number" id="loanAmountInput" min="10000" max="10000000" value="500000">
+                    </div>
+
+                    <div class="input-group">
+                        <label>
+                            <span>ब्याज दर (Interest Rate % प्रति वर्ष)</span>
+                            <span class="value-display"><span id="rateDisplay">10.5</span>%</span>
+                        </label>
+                        <input type="range" id="interestRate" min="1" max="30" step="0.1" value="10.5">
+                        <input type="number" id="interestRateInput" min="1" max="30" step="0.1" value="10.5">
+                    </div>
+
+                    <div class="input-group">
+                        <label>
+                            <span>लोन अवधि (Loan Tenure in Months)</span>
+                            <span class="value-display"><span id="tenureDisplay">60</span> महीने</span>
+                        </label>
+                        <input type="range" id="loanTenure" min="6" max="360" step="6" value="60">
+                        <input type="number" id="loanTenureInput" min="6" max="360" value="60">
+                    </div>
+
+                    <div class="note">
+                        <strong>नोट:</strong> <span id="methodNote">Reducing Balance Method में ब्याज घटती मूल राशि पर लगता है।</span>
+                    </div>
+                </div>
+
+                <div class="result-section">
+                    <div class="result-card">
+                        <h3>📊 मासिक EMI</h3>
+                        <div class="amount">₹<span id="emiAmount">10,740</span></div>
+                    </div>
+
+                    <div class="breakdown">
+                        <div class="breakdown-item">
+                            <span class="label">मूल राशि (Principal)</span>
+                            <span class="value">₹<span id="principalAmount">5,00,000</span></span>
+                        </div>
+                        <div class="breakdown-item">
+                            <span class="label">कुल ब्याज (Total Interest)</span>
+                            <span class="value">₹<span id="interestAmount">1,44,400</span></span>
+                        </div>
+                        <div class="breakdown-item" style="border-left-color: #28a745;">
+                            <span class="label">कुल भुगतान (Total Payment)</span>
+                            <span class="value">₹<span id="totalAmount">6,44,400</span></span>
+                        </div>
+                    </div>
+
+                    <div class="chart-container">
+                        <h3>भुगतान विभाजन</h3>
+                        <div class="chart">
+                            <div class="pie-chart" id="pieChart"></div>
+                        </div>
+                        <div class="chart-legend">
+                            <div class="legend-item">
+                                <div class="legend-color" style="background: #667eea;"></div>
+                                <span>मूल राशि</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color" style="background: #764ba2;"></div>
+                                <span>ब्याज</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="schedule-table" style="padding: 0 40px 40px;">
+                <h2 style="margin-bottom: 20px; color: #667eea;">📅 पहले 12 महीनों का भुगतान विवरण</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>महीना</th>
+                            <th>EMI राशि</th>
+                            <th>मूल राशि</th>
+                            <th>ब्याज</th>
+                            <th>शेष राशि</th>
+                        </tr>
+                    </thead>
+                    <tbody id="scheduleBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Interest Calculator -->
+        <div id="interest-calculator" class="calculator-content">
+            <div class="content">
+                <div class="input-section">
+                    <div class="input-group">
+                        <label>
+                            <span>कुल लोन राशि (Total Loan Amount)</span>
+                            <span class="value-display">₹<span id="totalLoanDisplay">500000</span></span>
+                        </label>
+                        <input type="range" id="totalLoanInput" min="10000" max="10000000" step="10000" value="500000">
+                        <input type="number" id="totalLoanInputNum" min="10000" max="10000000" value="500000">
+                    </div>
+
+                    <div class="input-group">
+                        <label>
+                            <span>प्राप्त राशि (Received Amount)</span>
+                            <span class="value-display">₹<span id="disbursedDisplay">450000</span></span>
+                        </label>
+                        <input type="range" id="disbursedInput" min="1000" max="10000000" step="1000" value="450000">
+                        <input type="number" id="disbursedInputNum" min="1000" max="10000000" value="450000">
+                    </div>
+
+                    <div class="input-group">
+                        <label>
+                            <span>कुल किस्तें (Total Installments)</span>
+                            <span class="value-display"><span id="installmentsDisplay">12</span> किस्तें</span>
+                        </label>
+                        <input type="range" id="installmentsInput" min="1" max="360" step="1" value="12">
+                        <input type="number" id="installmentsInputNum" min="1" max="360" value="12">
+                    </div>
+
+                    <div class="input-group">
+                        <label>
+                            <span>किस्त की राशि (Installment Amount)</span>
+                            <span class="value-display">₹<span id="installmentAmtDisplay">45000</span></span>
+                        </label>
+                        <input type="range" id="installmentAmtInput" min="100" max="1000000" step="100" value="45000">
+                        <input type="number" id="installmentAmtInputNum" min="100" max="1000000" value="45000">
+                    </div>
+
+                    <div class="input-group">
+                        <label>
+                            <span>पहली किस्त की तारीख (First Installment Date)</span>
+                        </label>
+                        <input type="date" id="firstInstallmentDate" value="2025-11-15">
+                    </div>
+
+                    <div class="input-group">
+                        <label>
+                            <span>किस्त की अवधि (Installment Frequency)</span>
+                        </label>
+                        <select id="installmentFreq">
+                            <option value="daily">दैनिक (Daily)</option>
+                            <option value="weekly">साप्ताहिक (Weekly)</option>
+                            <option value="monthly" selected>मासिक (Monthly)</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <label style="display: flex; align-items: center; gap: 10px;">
+                            <input type="checkbox" id="includeFileCharge" checked style="width: 20px; height: 20px; cursor: pointer;">
+                            <span>File Charge को Interest Rate में शामिल करें</span>
+                        </label>
+                    </div>
+
+                    <div class="note">
+                        <strong>नोट:</strong> यह कैलकुलेटर आपको कुल ब्याज और प्रत्येक किस्त की तारीख बताएगा।
+                    </div>
+                </div>
+
+                <div class="result-section">
+                    <div class="result-card">
+                        <h3>💰 कुल वापसी राशि (Total Repayment)</h3>
+                        <div class="amount">₹<span id="totalRepayment">5,40,000</span></div>
+                    </div>
+
+                    <div class="breakdown">
+                        <div class="breakdown-item">
+                            <span class="label">प्राप्त राशि (Received)</span>
+                            <span class="value">₹<span id="intDisbursedAmount">4,50,000</span></span>
+                        </div>
+                        <div class="breakdown-item" style="border-left-color: #ffc107;">
+                            <span class="label">File Charge</span>
+                            <span class="value">₹<span id="fileChargeAmount">50,000</span></span>
+                        </div>
+                        <div class="breakdown-item">
+                            <span class="label">कुल ब्याज (Total Interest)</span>
+                            <span class="value">₹<span id="totalInterestCharged">90,000</span></span>
+                        </div>
+                        <div class="breakdown-item" style="border-left-color: #dc3545;">
+                            <span class="label">ब्याज दर (Interest Rate)</span>
+                            <span class="value"><span id="calculatedRate">20.0</span>%</span>
+                        </div>
+                        <div class="breakdown-item" style="border-left-color: #28a745;">
+                            <span class="label">समय अवधि (Duration)</span>
+                            <span class="value"><span id="durationMonths">12</span> महीने</span>
+                        </div>
+                    </div>
+
+                    <div class="chart-container">
+                        <h3>राशि विभाजन</h3>
+                        <div class="chart">
+                            <div class="pie-chart" id="intPieChart"></div>
+                        </div>
+                        <div class="chart-legend">
+                            <div class="legend-item">
+                                <div class="legend-color" style="background: #667eea;"></div>
+                                <span>प्राप्त राशि</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color" style="background: #764ba2;"></div>
+                                <span>ब्याज</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="schedule-table" style="padding: 0 40px 40px;">
+                <h2 style="margin-bottom: 20px; color: #667eea;">📅 किस्तों का विवरण</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>किस्त नं.</th>
+                            <th>तारीख</th>
+                            <th>किस्त राशि</th>
+                            <th>बकाया राशि</th>
+                        </tr>
+                    </thead>
+                    <tbody id="interestScheduleBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="download-buttons">
+            <button class="download-btn pdf" id="downloadPDFBtn">📄 Download PDF</button>
+            <button class="download-btn jpg" id="downloadJPGBtn">🖼️ Download JPG</button>
+        </div>
+    </div>
+
+    <script>
+        let currentEMIMethod = 'reducing';
+        let currentTab = 'emi';
+
+        function formatNumber(num) {
+            return num.toLocaleString('en-IN', {maximumFractionDigits: 0});
+        }
+
+        function calculateEMI() {
+            const principal = parseFloat(document.getElementById('loanAmount').value);
+            const annualRate = parseFloat(document.getElementById('interestRate').value);
+            const months = parseInt(document.getElementById('loanTenure').value);
+
+            let emi, totalAmount, totalInterest;
+
+            if (currentEMIMethod === 'reducing') {
+                const monthlyRate = annualRate / 12 / 100;
+                emi = (principal * monthlyRate * Math.pow(1 + monthlyRate, months)) / 
+                      (Math.pow(1 + monthlyRate, months) - 1);
+                totalAmount = emi * months;
+                totalInterest = totalAmount - principal;
+            } else {
+                totalInterest = (principal * annualRate * (months / 12)) / 100;
+                totalAmount = principal + totalInterest;
+                emi = totalAmount / months;
+            }
+
+            document.getElementById('loanDisplay').textContent = formatNumber(principal);
+            document.getElementById('rateDisplay').textContent = annualRate.toFixed(1);
+            document.getElementById('tenureDisplay').textContent = months;
+            document.getElementById('emiAmount').textContent = formatNumber(emi);
+            document.getElementById('principalAmount').textContent = formatNumber(principal);
+            document.getElementById('interestAmount').textContent = formatNumber(totalInterest);
+            document.getElementById('totalAmount').textContent = formatNumber(totalAmount);
+
+            const principalPercentage = (principal / totalAmount) * 100;
+            const principalAngle = (principalPercentage / 100) * 360;
+            document.getElementById('pieChart').style.setProperty('--principal-angle', principalAngle + 'deg');
+
+            if (currentEMIMethod === 'reducing') {
+                generateReducingSchedule(principal, annualRate / 12 / 100, emi, months);
+            } else {
+                generateFlatSchedule(principal, totalInterest, emi, months);
+            }
+        }
+
+        function generateReducingSchedule(principal, monthlyRate, emi, totalMonths) {
+            const tbody = document.getElementById('scheduleBody');
+            tbody.innerHTML = '';
+            
+            let balance = principal;
+            const monthsToShow = Math.min(12, totalMonths);
+
+            for (let month = 1; month <= monthsToShow; month++) {
+                const interestPayment = balance * monthlyRate;
+                const principalPayment = emi - interestPayment;
+                balance -= principalPayment;
+
+                const row = tbody.insertRow();
+                row.innerHTML = `
+                    <td>${month}</td>
+                    <td>₹${formatNumber(emi)}</td>
+                    <td>₹${formatNumber(principalPayment)}</td>
+                    <td>₹${formatNumber(interestPayment)}</td>
+                    <td>₹${formatNumber(Math.max(0, balance))}</td>
+                `;
+            }
+        }
+
+        function generateFlatSchedule(principal, totalInterest, emi, totalMonths) {
+            const tbody = document.getElementById('scheduleBody');
+            tbody.innerHTML = '';
+            
+            const principalPerMonth = principal / totalMonths;
+            const interestPerMonth = totalInterest / totalMonths;
+            let balance = principal;
+            const monthsToShow = Math.min(12, totalMonths);
+
+            for (let month = 1; month <= monthsToShow; month++) {
+                balance -= principalPerMonth;
+
+                const row = tbody.insertRow();
+                row.innerHTML = `
+                    <td>${month}</td>
+                    <td>₹${formatNumber(emi)}</td>
+                    <td>₹${formatNumber(principalPerMonth)}</td>
+                    <td>₹${formatNumber(interestPerMonth)}</td>
+                    <td>₹${formatNumber(Math.max(0, balance))}</td>
+                `;
+            }
+        }
+
+        function calculateInterest() {
+            const totalLoan = parseFloat(document.getElementById('totalLoanInput').value);
+            const disbursed = parseFloat(document.getElementById('disbursedInput').value);
+            const installments = parseInt(document.getElementById('installmentsInput').value);
+            const installmentAmt = parseFloat(document.getElementById('installmentAmtInput').value);
+            const firstDate = document.getElementById('firstInstallmentDate').value;
+            const frequency = document.getElementById('installmentFreq').value;
+            const includeFileCharge = document.getElementById('includeFileCharge').checked;
+
+            // Calculations
+            const totalRepayment = installmentAmt * installments;
+            const fileCharge = totalLoan - disbursed;
+            
+            // Interest calculation logic
+            // Total repayment - Total loan amount = Actual Interest
+            const actualInterest = totalRepayment - totalLoan;
+            
+            let displayInterest, interestRate;
+            
+            if (includeFileCharge) {
+                // File charge + Interest dono ko prapt rashi (9000) par calculate karo
+                displayInterest = actualInterest + fileCharge;
+                interestRate = (displayInterest / disbursed) * 100;
+            } else {
+                // Sirf actual interest ko total loan (10000) par calculate karo
+                displayInterest = actualInterest;
+                interestRate = (actualInterest / totalLoan) * 100;
+            }
+
+            let durationMonths = installments;
+            if (frequency === 'daily') {
+                durationMonths = Math.round(installments / 30);
+            } else if (frequency === 'weekly') {
+                durationMonths = Math.round(installments / 4);
+            }
+
+            // Update display
+            document.getElementById('totalLoanDisplay').textContent = formatNumber(totalLoan);
+            document.getElementById('disbursedDisplay').textContent = formatNumber(disbursed);
+            document.getElementById('installmentsDisplay').textContent = installments;
+            document.getElementById('installmentAmtDisplay').textContent = formatNumber(installmentAmt);
+            document.getElementById('totalRepayment').textContent = formatNumber(totalRepayment);
+            document.getElementById('intDisbursedAmount').textContent = formatNumber(disbursed);
+            document.getElementById('fileChargeAmount').textContent = formatNumber(fileCharge);
+            document.getElementById('totalInterestCharged').textContent = formatNumber(displayInterest);
+            document.getElementById('calculatedRate').textContent = interestRate.toFixed(2);
+            document.getElementById('durationMonths').textContent = durationMonths;
+
+            const disbursedPercentage = (disbursed / totalRepayment) * 100;
+            const disbursedAngle = (disbursedPercentage / 100) * 360;
+            document.getElementById('intPieChart').style.setProperty('--principal-angle', disbursedAngle + 'deg');
+
+            generateInstallmentSchedule(installments, installmentAmt, totalRepayment, firstDate, frequency);
+        }
+
+        function generateInstallmentSchedule(installments, installmentAmt, totalRepayment, firstDateStr, frequency) {
+            const tbody = document.getElementById('interestScheduleBody');
+            tbody.innerHTML = '';
+
+            let currentDate = new Date(firstDateStr);
+            let balance = totalRepayment;
+
+            for (let i = 1; i <= installments; i++) {
+                balance -= installmentAmt;
+
+                const row = tbody.insertRow();
+                const dateStr = currentDate.toLocaleDateString('hi-IN', {
+                    day: '2-digit',
+                    month: 'short',
+                    year: 'numeric'
+                });
+
+                row.innerHTML = `
+                    <td>${i}</td>
+                    <td>${dateStr}</td>
+                    <td>₹${formatNumber(installmentAmt)}</td>
+                    <td>₹${formatNumber(Math.max(0, balance))}</td>
+                `;
+
+                if (frequency === 'daily') {
+                    currentDate.setDate(currentDate.getDate() + 1);
+                } else if (frequency === 'weekly') {
+                    currentDate.setDate(currentDate.getDate() + 7);
+                } else if (frequency === 'monthly') {
+                    currentDate.setMonth(currentDate.getMonth() + 1);
+                }
+            }
+        }
+
+        async function downloadPDF() {
+            alert('PDF Download: Kripya browser ka Print option use karein (Ctrl+P) aur "Save as PDF" select karein.');
+            const watermark = document.getElementById('watermark');
+            watermark.classList.add('show');
+            setTimeout(() => {
+                window.print();
+                setTimeout(() => {
+                    watermark.classList.remove('show');
+                }, 1000);
+            }, 100);
+        }
+
+        async function downloadJPG() {
+            const watermark = document.getElementById('watermark');
+            watermark.classList.add('show');
+            
+            setTimeout(() => {
+                alert('Screenshot lene ke liye:\n\n1. Windows: Win + Shift + S\n2. Mac: Cmd + Shift + 4\n3. Mobile: Screenshot button\n\nYa phir browser extension use karein jaise "Full Page Screen Capture"');
+                watermark.classList.remove('show');
+            }, 100);
+        }
+
+        // Event Listeners
+        document.getElementById('emiTab').addEventListener('click', function() {
+            currentTab = 'emi';
+            document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+            document.getElementById('emi-calculator').classList.add('active');
+            document.getElementById('interest-calculator').classList.remove('active');
+        });
+
+        document.getElementById('interestTab').addEventListener('click', function() {
+            currentTab = 'interest';
+            document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+            document.getElementById('interest-calculator').classList.add('active');
+            document.getElementById('emi-calculator').classList.remove('active');
+        });
+
+        document.getElementById('reducingBtn').addEventListener('click', function() {
+            currentEMIMethod = 'reducing';
+            document.querySelectorAll('#emi-calculator .method-button').forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+            document.getElementById('methodNote').textContent = 'Reducing Balance Method में ब्याज घटती मूल राशि पर लगता है।';
+            calculateEMI();
+        });
+
+        document.getElementById('flatBtn').addEventListener('click', function() {
+            currentEMIMethod = 'flat';
+            document.querySelectorAll('#emi-calculator .method-button').forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+            document.getElementById('methodNote').textContent = 'Flat Rate Method में ब्याज पूरी मूल राशि पर लगता है।';
+            calculateEMI();
+        });
+
+        document.getElementById('loanAmount').addEventListener('input', function(e) {
+            document.getElementById('loanAmountInput').value = e.target.value;
+            calculateEMI();
+        });
+
+        document.getElementById('loanAmountInput').addEventListener('input', function(e) {
+            document.getElementById('loanAmount').value = e.target.value;
+            calculateEMI();
+        });
+
+        document.getElementById('interestRate').addEventListener('input', function(e) {
+            document.getElementById('interestRateInput').value = e.target.value;
+            calculateEMI();
+        });
+
+        document.getElementById('interestRateInput').addEventListener('input', function(e) {
+            document.getElementById('interestRate').value = e.target.value;
+            calculateEMI();
+        });
+
+        document.getElementById('loanTenure').addEventListener('input', function(e) {
+            document.getElementById('loanTenureInput').value = e.target.value;
+            calculateEMI();
+        });
+
+        document.getElementById('loanTenureInput').addEventListener('input', function(e) {
+            document.getElementById('loanTenure').value = e.target.value;
+            calculateEMI();
+        });
+
+        document.getElementById('totalLoanInput').addEventListener('input', function(e) {
+            document.getElementById('totalLoanInputNum').value = e.target.value;
+            calculateInterest();
+        });
+
+        document.getElementById('totalLoanInputNum').addEventListener('input', function(e) {
+            const value = e.target.value;
+            document.getElementById('totalLoanInput').value = value;
+            document.getElementById('totalLoanInput').max = Math.max(10000000, value);
+            calculateInterest();
+        });
+
+        document.getElementById('disbursedInput').addEventListener('input', function(e) {
+            document.getElementById('disbursedInputNum').value = e.target.value;
+            calculateInterest();
+        });
+
+        document.getElementById('disbursedInputNum').addEventListener('input', function(e) {
+            const value = e.target.value;
+            document.getElementById('disbursedInput').value = value;
+            document.getElementById('disbursedInput').max = Math.max(10000000, value);
+            calculateInterest();
+        });
+
+        document.getElementById('installmentsInput').addEventListener('input', function(e) {
+            document.getElementById('installmentsInputNum').value = e.target.value;
+            calculateInterest();
+        });
+
+        document.getElementById('installmentsInputNum').addEventListener('input', function(e) {
+            document.getElementById('installmentsInput').value = e.target.value;
+            calculateInterest();
+        });
+
+        document.getElementById('installmentAmtInput').addEventListener('input', function(e) {
+            document.getElementById('installmentAmtInputNum').value = e.target.value;
+            calculateInterest();
+        });
+
+        document.getElementById('installmentAmtInputNum').addEventListener('input', function(e) {
+            const value = e.target.value;
+            document.getElementById('installmentAmtInput').value = value;
+            document.getElementById('installmentAmtInput').max = Math.max(1000000, value);
+            calculateInterest();
+        });
+
+        document.getElementById('firstInstallmentDate').addEventListener('change', function() {
+            calculateInterest();
+        });
+
+        document.getElementById('installmentFreq').addEventListener('change', function() {
+            calculateInterest();
+        });
+
+        document.getElementById('includeFileCharge').addEventListener('change', function() {
+            calculateInterest();
+        });
+
+        document.getElementById('downloadPDFBtn').addEventListener('click', downloadPDF);
+        document.getElementById('downloadJPGBtn').addEventListener('click', downloadJPG);
+
+        // Initialize calculations
+        calculateEMI();
+        calculateInterest();
+    </script>
+</body>
+</html>
