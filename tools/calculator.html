@@ -253,82 +253,186 @@
 
         .chart-container {
             background: white;
-            padding: 20px;
-            border-radius: 10px;
+            padding: 30px;
+            border-radius: 15px;
             margin-top: 20px;
             text-align: center;
+            position: relative;
+            overflow: visible;
         }
 
         .chart {
-            width: 200px;
-            height: 200px;
-            margin: 20px auto;
+            width: 250px;
+            height: 250px;
+            margin: 30px auto;
             position: relative;
-            transform-style: preserve-3d;
-            cursor: pointer;
+            perspective: 1000px;
         }
 
         .pie-chart {
             width: 100%;
             height: 100%;
-            border-radius: 50%;
             position: relative;
-            box-shadow: 
-                0 10px 30px rgba(0, 0, 0, 0.2),
-                inset 0 -5px 15px rgba(0, 0, 0, 0.2),
-                inset 0 5px 15px rgba(255, 255, 255, 0.3);
-            background: conic-gradient(
-                #28a745 0deg,
-                #28a745 var(--principal-angle, 180deg),
-                #dc3545 var(--principal-angle, 180deg),
-                #dc3545 360deg
-            );
+            transform-style: preserve-3d;
+            transition: all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        .pie-slice {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
             transition: all 0.5s ease;
             cursor: pointer;
         }
 
-        .pie-chart:hover {
-            transform: scale(1.05);
+        .pie-slice-green {
+            background: conic-gradient(
+                from 0deg,
+                #28a745 0deg,
+                #34ce57 var(--slice-angle, 180deg),
+                transparent var(--slice-angle, 180deg)
+            );
+            filter: drop-shadow(0 4px 8px rgba(40, 167, 69, 0.4));
         }
 
-        .pie-overlay {
+        .pie-slice-green:hover {
+            transform: translateZ(30px) scale(1.08);
+            filter: drop-shadow(0 10px 25px rgba(40, 167, 69, 0.6)) brightness(1.1);
+        }
+
+        .pie-slice-green.active {
+            transform: translateZ(50px) scale(1.15) rotate(5deg);
+            filter: drop-shadow(0 15px 35px rgba(40, 167, 69, 0.8)) brightness(1.2);
+            z-index: 10;
+        }
+
+        .pie-slice-red {
+            background: conic-gradient(
+                from var(--slice-angle, 180deg),
+                #dc3545 var(--slice-angle, 180deg),
+                #ff4757 360deg,
+                transparent 360deg
+            );
+            filter: drop-shadow(0 4px 8px rgba(220, 53, 69, 0.4));
+        }
+
+        .pie-slice-red:hover {
+            transform: translateZ(30px) scale(1.08);
+            filter: drop-shadow(0 10px 25px rgba(220, 53, 69, 0.6)) brightness(1.1);
+        }
+
+        .pie-slice-red.active {
+            transform: translateZ(50px) scale(1.15) rotate(-5deg);
+            filter: drop-shadow(0 15px 35px rgba(220, 53, 69, 0.8)) brightness(1.2);
+            z-index: 10;
+        }
+
+        .chart-center {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100px;
+            height: 100px;
+            background: white;
             border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            z-index: 5;
             pointer-events: none;
-            transition: all 0.5s ease;
         }
 
-        .pie-chart.zoom-green .pie-overlay {
-            background: radial-gradient(circle at 75% 25%, rgba(40, 167, 69, 0.4) 0%, transparent 60%);
-            transform: scale(1.3);
+        .chart-center-value {
+            font-size: 1.4em;
+            font-weight: bold;
+            color: #667eea;
         }
 
-        .pie-chart.zoom-red .pie-overlay {
-            background: radial-gradient(circle at 25% 75%, rgba(220, 53, 69, 0.4) 0%, transparent 60%);
-            transform: scale(1.3);
+        .chart-center-label {
+            font-size: 0.7em;
+            color: #666;
+            margin-top: 2px;
         }
 
         .chart-legend {
             display: flex;
             justify-content: center;
-            gap: 30px;
-            margin-top: 20px;
+            gap: 40px;
+            margin-top: 30px;
+            flex-wrap: wrap;
         }
 
         .legend-item {
             display: flex;
+            flex-direction: column;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
+            padding: 15px 25px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .legend-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            border-color: currentColor;
+        }
+
+        .legend-item.active {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.25);
         }
 
         .legend-color {
-            width: 20px;
-            height: 20px;
-            border-radius: 4px;
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        }
+
+        .legend-item:hover .legend-color {
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        .legend-info {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+        }
+
+        .legend-label {
+            font-weight: 600;
+            color: #333;
+            font-size: 0.95em;
+        }
+
+        .legend-value {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .legend-percentage {
+            font-size: 0.85em;
+            color: #888;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .chart:hover .pie-chart {
+            transform: rotateY(10deg) rotateX(5deg);
         }
 
         .schedule-table {
@@ -544,20 +648,33 @@
                     </div>
 
                     <div class="chart-container">
-                        <h3>भुगतान विभाजन</h3>
+                        <h3>💰 भुगतान विभाजन (Payment Breakdown)</h3>
                         <div class="chart">
                             <div class="pie-chart" id="pieChart">
-                                <div class="pie-overlay"></div>
+                                <div class="pie-slice pie-slice-green" id="pieSliceGreen"></div>
+                                <div class="pie-slice pie-slice-red" id="pieSliceRed"></div>
+                                <div class="chart-center">
+                                    <div class="chart-center-value" id="pieTotalValue">₹5L</div>
+                                    <div class="chart-center-label">कुल राशि</div>
+                                </div>
                             </div>
                         </div>
                         <div class="chart-legend">
-                            <div class="legend-item" onclick="zoomChart('pieChart', 'green')" style="cursor: pointer;">
-                                <div class="legend-color" style="background: #28a745;"></div>
-                                <span>मूल राशि (Click to Zoom)</span>
+                            <div class="legend-item" id="legendGreen" onclick="toggleSlice('green', 'emi')">
+                                <div class="legend-color" style="background: linear-gradient(135deg, #28a745, #34ce57);"></div>
+                                <div class="legend-info">
+                                    <div class="legend-label">मूल राशि</div>
+                                    <div class="legend-value" id="greenValue">₹0</div>
+                                    <div class="legend-percentage" id="greenPercent">0%</div>
+                                </div>
                             </div>
-                            <div class="legend-item" onclick="zoomChart('pieChart', 'red')" style="cursor: pointer;">
-                                <div class="legend-color" style="background: #dc3545;"></div>
-                                <span>ब्याज (Click to Zoom)</span>
+                            <div class="legend-item" id="legendRed" onclick="toggleSlice('red', 'emi')">
+                                <div class="legend-color" style="background: linear-gradient(135deg, #dc3545, #ff4757);"></div>
+                                <div class="legend-info">
+                                    <div class="legend-label">ब्याज</div>
+                                    <div class="legend-value" id="redValue">₹0</div>
+                                    <div class="legend-percentage" id="redPercent">0%</div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -681,20 +798,33 @@
                     </div>
 
                     <div class="chart-container">
-                        <h3>राशि विभाजन</h3>
+                        <h3>💵 राशि विभाजन (Amount Breakdown)</h3>
                         <div class="chart">
                             <div class="pie-chart" id="intPieChart">
-                                <div class="pie-overlay"></div>
+                                <div class="pie-slice pie-slice-green" id="intPieSliceGreen"></div>
+                                <div class="pie-slice pie-slice-red" id="intPieSliceRed"></div>
+                                <div class="chart-center">
+                                    <div class="chart-center-value" id="intTotalValue">₹5L</div>
+                                    <div class="chart-center-label">कुल राशि</div>
+                                </div>
                             </div>
                         </div>
                         <div class="chart-legend">
-                            <div class="legend-item" onclick="zoomChart('intPieChart', 'green')" style="cursor: pointer;">
-                                <div class="legend-color" style="background: #28a745;"></div>
-                                <span>प्राप्त राशि (Click to Zoom)</span>
+                            <div class="legend-item" id="intLegendGreen" onclick="toggleSlice('green', 'interest')">
+                                <div class="legend-color" style="background: linear-gradient(135deg, #28a745, #34ce57);"></div>
+                                <div class="legend-info">
+                                    <div class="legend-label">प्राप्त राशि</div>
+                                    <div class="legend-value" id="intGreenValue">₹0</div>
+                                    <div class="legend-percentage" id="intGreenPercent">0%</div>
+                                </div>
                             </div>
-                            <div class="legend-item" onclick="zoomChart('intPieChart', 'red')" style="cursor: pointer;">
-                                <div class="legend-color" style="background: #dc3545;"></div>
-                                <span>ब्याज (Click to Zoom)</span>
+                            <div class="legend-item" id="intLegendRed" onclick="toggleSlice('red', 'interest')">
+                                <div class="legend-color" style="background: linear-gradient(135deg, #dc3545, #ff4757);"></div>
+                                <div class="legend-info">
+                                    <div class="legend-label">ब्याज</div>
+                                    <div class="legend-value" id="intRedValue">₹0</div>
+                                    <div class="legend-percentage" id="intRedPercent">0%</div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -789,29 +919,72 @@
     <script>
         let currentEMIMethod = 'reducing';
         let currentTab = 'emi';
+        let activeSlice = { emi: null, interest: null };
 
         function formatNumber(num) {
             return num.toLocaleString('en-IN', {maximumFractionDigits: 0});
         }
 
-        function zoomChart(chartId, color) {
-            const chart = document.getElementById(chartId);
+        function formatShort(num) {
+            if (num >= 10000000) return '₹' + (num/10000000).toFixed(1) + 'Cr';
+            if (num >= 100000) return '₹' + (num/100000).toFixed(1) + 'L';
+            if (num >= 1000) return '₹' + (num/1000).toFixed(1) + 'K';
+            return '₹' + num.toFixed(0);
+        }
+
+        function toggleSlice(color, chartType) {
+            const prefix = chartType === 'emi' ? '' : 'int';
+            const greenSlice = document.getElementById(prefix + 'PieSliceGreen');
+            const redSlice = document.getElementById(prefix + 'PieSliceRed');
+            const greenLegend = document.getElementById(prefix === '' ? 'legendGreen' : 'intLegendGreen');
+            const redLegend = document.getElementById(prefix === '' ? 'legendRed' : 'intLegendRed');
             
             if (color === 'green') {
-                if (chart.classList.contains('zoom-green')) {
-                    chart.classList.remove('zoom-green');
+                if (activeSlice[chartType] === 'green') {
+                    greenSlice.classList.remove('active');
+                    greenLegend.classList.remove('active');
+                    activeSlice[chartType] = null;
                 } else {
-                    chart.classList.remove('zoom-red');
-                    chart.classList.add('zoom-green');
+                    greenSlice.classList.add('active');
+                    redSlice.classList.remove('active');
+                    greenLegend.classList.add('active');
+                    redLegend.classList.remove('active');
+                    activeSlice[chartType] = 'green';
                 }
-            } else if (color === 'red') {
-                if (chart.classList.contains('zoom-red')) {
-                    chart.classList.remove('zoom-red');
+            } else {
+                if (activeSlice[chartType] === 'red') {
+                    redSlice.classList.remove('active');
+                    redLegend.classList.remove('active');
+                    activeSlice[chartType] = null;
                 } else {
-                    chart.classList.remove('zoom-green');
-                    chart.classList.add('zoom-red');
+                    redSlice.classList.add('active');
+                    greenSlice.classList.remove('active');
+                    redLegend.classList.add('active');
+                    greenLegend.classList.remove('active');
+                    activeSlice[chartType] = 'red';
                 }
             }
+        }
+
+        function updateChart(principal, interest, total, chartType) {
+            const prefix = chartType === 'emi' ? '' : 'int';
+            const angle = (principal / total) * 360;
+            
+            const greenSlice = document.getElementById(prefix + 'PieSliceGreen');
+            const redSlice = document.getElementById(prefix + 'PieSliceRed');
+            
+            greenSlice.style.setProperty('--slice-angle', angle + 'deg');
+            redSlice.style.setProperty('--slice-angle', angle + 'deg');
+            
+            document.getElementById(prefix + 'TotalValue').textContent = formatShort(total);
+            document.getElementById(prefix + 'GreenValue').textContent = formatShort(principal);
+            document.getElementById(prefix + 'RedValue').textContent = formatShort(interest);
+            
+            const greenPercent = ((principal / total) * 100).toFixed(1);
+            const redPercent = ((interest / total) * 100).toFixed(1);
+            
+            document.getElementById(prefix + 'GreenPercent').textContent = greenPercent + '%';
+            document.getElementById(prefix + 'RedPercent').textContent = redPercent + '%';
         }
 
         function calculateEMI() {
