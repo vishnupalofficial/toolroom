@@ -1218,12 +1218,45 @@
                 pdf.setFont(undefined, 'normal');
                 
                 const numCols = range.e.c - range.s.c + 1;
-                const numRows = range.e.r - range.s.r + 1;
                 const availableWidth = pageWidth - 2 * margin;
-                const colWidth = availableWidth / numCols;
-                const rowHeight = 6;
+                
+                // Calculate optimal column widths based on content
+                const colWidths = [];
+                const maxColWidth = availableWidth / numCols;
+                const minColWidth = 20;
                 
                 pdf.setFontSize(9);
+                
+                // Analyze each column to find max content width
+                for (let col = range.s.c; col <= range.e.c; col++) {
+                    let maxWidth = minColWidth;
+                    
+                    for (let row = range.s.r; row <= range.e.r; row++) {
+                        const cellAddress = XLSX.utils.encode_cell({ r: row, c: col });
+                        const cell = sheet[cellAddress];
+                        if (cell) {
+                            const cellValue = String(cell.v);
+                            const textWidth = pdf.getTextWidth(cellValue) + 4;
+                            if (textWidth > maxWidth) {
+                                maxWidth = textWidth;
+                            }
+                        }
+                    }
+                    
+                    // Limit to reasonable width
+                    colWidths.push(Math.min(maxWidth, maxColWidth));
+                }
+                
+                // Adjust widths if total exceeds available width
+                let totalWidth = colWidths.reduce((a, b) => a + b, 0);
+                if (totalWidth > availableWidth) {
+                    const scale = availableWidth / totalWidth;
+                    for (let i = 0; i < colWidths.length; i++) {
+                        colWidths[i] *= scale;
+                    }
+                }
+                
+                const rowHeight = 6;
                 
                 // Draw all rows
                 for (let row = range.s.r; row <= range.e.r; row++) {
@@ -1237,6 +1270,9 @@
                     
                     // Draw all columns in this row
                     for (let col = range.s.c; col <= range.e.c; col++) {
+                        const colIndex = col - range.s.c;
+                        const colWidth = colWidths[colIndex];
+                        
                         const cellAddress = XLSX.utils.encode_cell({ r: row, c: col });
                         const cell = sheet[cellAddress];
                         const cellValue = cell ? String(cell.v) : '';
@@ -1244,19 +1280,17 @@
                         // Draw cell border
                         pdf.rect(x, y, colWidth, rowHeight);
                         
-                        // Draw cell text (truncate if too long)
-                        const maxTextWidth = colWidth - 4;
-                        let displayText = cellValue;
+                        // Draw full text (no truncation)
+                        const padding = 2;
+                        const maxTextWidth = colWidth - padding * 2;
                         
-                        while (pdf.getTextWidth(displayText) > maxTextWidth && displayText.length > 0) {
-                            displayText = displayText.slice(0, -1);
+                        // Split text into multiple lines if needed
+                        const lines = pdf.splitTextToSize(cellValue, maxTextWidth);
+                        
+                        // Draw first line (or wrap to next row if multiline needed)
+                        if (lines.length > 0) {
+                            pdf.text(lines[0], x + padding, y + 4);
                         }
-                        
-                        if (displayText.length < cellValue.length) {
-                            displayText = displayText.slice(0, -3) + '...';
-                        }
-                        
-                        pdf.text(displayText, x + 2, y + 4);
                         
                         x += colWidth;
                     }
@@ -1375,9 +1409,58 @@
 
             for (let i = 1; i <= pdf.numPages; i++) {
                 const page = await pdf.getPage(i);
-                const text = await page.getTextContent();
-                const pageText = text.items.map(item => item.str).join(' ');
-                textContent += pageText + '\n\n';
+                const content = await page.getTextContent();
+                
+                // Group by Y position to maintain structure
+                const rowMap = new Map();
+                
+                content.items.forEach(item => {
+                    const y = Math.round(item.transform[5] / 2) * 2;
+                    if (!rowMap.has(y)) {
+                        rowMap.set(y, []);
+                    }
+                    rowMap.get(y).push({
+                        text: item.str.trim(),
+                        x: Math.round(item.transform[4])
+                    });
+                });
+                
+                // Sort rows top to bottom
+                const sortedRows = Array.from(rowMap.entries())
+                    .sort((a, b) => b[0] - a[0]);
+                
+                textContent += `\n========== Page ${i} ==========\n\n`;
+                
+                for (const [y, items] of sortedRows) {
+                    // Sort items left to right
+                    items.sort((a, b) => a.x - b.x);
+                    
+                    // Detect if items should be on same line or separate
+                    let line = '';
+                    let lastX = -1000;
+                    
+                    for (const item of items) {
+                        if (item.x - lastX > 50) {
+                            // Add spacing for columns
+                            line += '    ';
+                        } else if (item.x - lastX > 10) {
+                            // Normal space
+                            line += ' ';
+                        }
+                        line += item.text;
+                        lastX = item.x + item.text.length * 5;
+                    }
+                    
+                    if (line.trim()) {
+                        textContent += line + '\n';
+                    }
+                }
+                
+                textContent += '\n';
+            }
+
+            if (!textContent || textContent.trim().length === 0) {
+                throw new Error('No text found in PDF');
             }
 
             const docContent = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
@@ -1401,48 +1484,73 @@
             pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
             
             const pdf = await pdfjsLib.getDocument(arrayBuffer).promise;
-            let allData = [];
+            const wb = XLSX.utils.book_new();
 
-            for (let i = 1; i <= pdf.numPages; i++) {
-                const page = await pdf.getPage(i);
+            for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+                const page = await pdf.getPage(pageNum);
                 const textContent = await page.getTextContent();
                 
-                const rows = {};
+                // Group items by Y position (rows)
+                const rowMap = new Map();
+                
                 textContent.items.forEach(item => {
-                    const y = Math.round(item.transform[5]);
-                    if (!rows[y]) {
-                        rows[y] = [];
+                    const y = Math.round(item.transform[5] / 2) * 2; // Group similar Y positions
+                    if (!rowMap.has(y)) {
+                        rowMap.set(y, []);
                     }
-                    rows[y].push({
-                        text: item.str,
-                        x: item.transform[4]
+                    rowMap.get(y).push({
+                        text: item.str.trim(),
+                        x: Math.round(item.transform[4])
                     });
                 });
                 
-                const sortedY = Object.keys(rows).sort((a, b) => b - a);
+                // Sort rows by Y position (top to bottom)
+                const sortedRows = Array.from(rowMap.entries())
+                    .sort((a, b) => b[0] - a[0]);
                 
-                sortedY.forEach(y => {
-                    rows[y].sort((a, b) => a.x - b.x);
-                    const rowData = rows[y].map(item => item.text);
+                // Process each row
+                const sheetData = [];
+                
+                for (const [y, items] of sortedRows) {
+                    // Sort items in row by X position (left to right)
+                    items.sort((a, b) => a.x - b.x);
                     
-                    if (rowData.some(cell => cell.trim())) {
-                        allData.push(rowData);
+                    // Detect columns by X position clustering
+                    const columns = [];
+                    let currentCol = [];
+                    let lastX = -1000;
+                    
+                    for (const item of items) {
+                        // If X position is far from last, it's a new column
+                        if (item.x - lastX > 10 && currentCol.length > 0) {
+                            columns.push(currentCol.join(' '));
+                            currentCol = [];
+                        }
+                        currentCol.push(item.text);
+                        lastX = item.x;
                     }
-                });
+                    
+                    // Add last column
+                    if (currentCol.length > 0) {
+                        columns.push(currentCol.join(' '));
+                    }
+                    
+                    // Only add non-empty rows
+                    if (columns.some(col => col.trim())) {
+                        sheetData.push(columns);
+                    }
+                }
                 
-                if (i < pdf.numPages) {
-                    allData.push([`--- End of Page ${i} ---`]);
+                if (sheetData.length > 0) {
+                    const ws = XLSX.utils.aoa_to_sheet(sheetData);
+                    XLSX.utils.book_append_sheet(wb, ws, `Page ${pageNum}`);
                 }
             }
 
-            if (allData.length === 0) {
+            if (wb.SheetNames.length === 0) {
                 throw new Error('No data found in PDF');
             }
 
-            const ws = XLSX.utils.aoa_to_sheet(allData);
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, 'Extracted Data');
-            
             const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
             const blob = new Blob([wbout], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
             const filename = getOutputName(2, 'Extracted', '.xlsx');
