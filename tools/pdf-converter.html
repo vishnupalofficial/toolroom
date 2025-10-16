@@ -1193,8 +1193,12 @@
             
             let isFirst = true;
             
+            // Convert ALL sheets
             for (let sheetName of workbook.SheetNames) {
                 const sheet = workbook.Sheets[sheetName];
+                
+                if (!sheet['!ref']) continue;
+                
                 const range = XLSX.utils.decode_range(sheet['!ref']);
                 
                 if (!isFirst) {
@@ -1204,44 +1208,60 @@
                 
                 const pageHeight = pdf.internal.pageSize.getHeight();
                 const pageWidth = pdf.internal.pageSize.getWidth();
-                const margin = 15;
-                const cellPadding = 3;
-                let y = margin + 15;
+                const margin = 10;
+                let y = margin + 12;
                 
-                pdf.setFontSize(settings.fontSize + 2);
+                // Sheet title
+                pdf.setFontSize(14);
                 pdf.setFont(undefined, 'bold');
-                pdf.text(sheetName, margin, margin + 10);
+                pdf.text(sheetName, margin, margin + 8);
                 pdf.setFont(undefined, 'normal');
-                pdf.setFontSize(settings.fontSize - 2);
                 
                 const numCols = range.e.c - range.s.c + 1;
+                const numRows = range.e.r - range.s.r + 1;
                 const availableWidth = pageWidth - 2 * margin;
                 const colWidth = availableWidth / numCols;
+                const rowHeight = 6;
                 
+                pdf.setFontSize(9);
+                
+                // Draw all rows
                 for (let row = range.s.r; row <= range.e.r; row++) {
-                    let rowData = [];
-                    
-                    for (let col = range.s.c; col <= range.e.c; col++) {
-                        const cellAddress = XLSX.utils.encode_cell({ r: row, c: col });
-                        const cell = sheet[cellAddress];
-                        const cellValue = cell ? String(cell.v) : '';
-                        rowData.push(cellValue);
-                    }
-                    
-                    if (y + settings.lineHeight > pageHeight - margin) {
+                    // Check if new page needed
+                    if (y + rowHeight > pageHeight - margin) {
                         pdf.addPage();
                         y = margin;
                     }
                     
                     let x = margin;
-                    for (let i = 0; i < rowData.length; i++) {
-                        pdf.rect(x, y - settings.lineHeight + 2, colWidth, settings.lineHeight + 2);
-                        const text = pdf.splitTextToSize(rowData[i], colWidth - 2 * cellPadding);
-                        pdf.text(text[0] || '', x + cellPadding, y);
+                    
+                    // Draw all columns in this row
+                    for (let col = range.s.c; col <= range.e.c; col++) {
+                        const cellAddress = XLSX.utils.encode_cell({ r: row, c: col });
+                        const cell = sheet[cellAddress];
+                        const cellValue = cell ? String(cell.v) : '';
+                        
+                        // Draw cell border
+                        pdf.rect(x, y, colWidth, rowHeight);
+                        
+                        // Draw cell text (truncate if too long)
+                        const maxTextWidth = colWidth - 4;
+                        let displayText = cellValue;
+                        
+                        while (pdf.getTextWidth(displayText) > maxTextWidth && displayText.length > 0) {
+                            displayText = displayText.slice(0, -1);
+                        }
+                        
+                        if (displayText.length < cellValue.length) {
+                            displayText = displayText.slice(0, -3) + '...';
+                        }
+                        
+                        pdf.text(displayText, x + 2, y + 4);
+                        
                         x += colWidth;
                     }
                     
-                    y += settings.lineHeight + 2;
+                    y += rowHeight;
                 }
             }
 
