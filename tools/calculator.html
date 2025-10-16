@@ -264,18 +264,52 @@
             height: 200px;
             margin: 20px auto;
             position: relative;
+            transform-style: preserve-3d;
+            cursor: pointer;
         }
 
         .pie-chart {
             width: 100%;
             height: 100%;
             border-radius: 50%;
+            position: relative;
+            box-shadow: 
+                0 10px 30px rgba(0, 0, 0, 0.2),
+                inset 0 -5px 15px rgba(0, 0, 0, 0.2),
+                inset 0 5px 15px rgba(255, 255, 255, 0.3);
             background: conic-gradient(
-                #667eea 0deg,
-                #667eea var(--principal-angle),
-                #764ba2 var(--principal-angle),
-                #764ba2 360deg
+                #28a745 0deg,
+                #28a745 var(--principal-angle, 180deg),
+                #dc3545 var(--principal-angle, 180deg),
+                #dc3545 360deg
             );
+            transition: all 0.5s ease;
+            cursor: pointer;
+        }
+
+        .pie-chart:hover {
+            transform: scale(1.05);
+        }
+
+        .pie-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            pointer-events: none;
+            transition: all 0.5s ease;
+        }
+
+        .pie-chart.zoom-green .pie-overlay {
+            background: radial-gradient(circle at 75% 25%, rgba(40, 167, 69, 0.4) 0%, transparent 60%);
+            transform: scale(1.3);
+        }
+
+        .pie-chart.zoom-red .pie-overlay {
+            background: radial-gradient(circle at 25% 75%, rgba(220, 53, 69, 0.4) 0%, transparent 60%);
+            transform: scale(1.3);
         }
 
         .chart-legend {
@@ -338,6 +372,10 @@
             gap: 15px;
             padding: 20px 40px;
             background: #f8f9fa;
+        }
+
+        .download-buttons.hide-for-download {
+            display: none !important;
         }
 
         .download-btn {
@@ -508,16 +546,18 @@
                     <div class="chart-container">
                         <h3>भुगतान विभाजन</h3>
                         <div class="chart">
-                            <div class="pie-chart" id="pieChart"></div>
+                            <div class="pie-chart" id="pieChart">
+                                <div class="pie-overlay"></div>
+                            </div>
                         </div>
                         <div class="chart-legend">
-                            <div class="legend-item">
-                                <div class="legend-color" style="background: #667eea;"></div>
-                                <span>मूल राशि</span>
+                            <div class="legend-item" onclick="zoomChart('pieChart', 'green')" style="cursor: pointer;">
+                                <div class="legend-color" style="background: #28a745;"></div>
+                                <span>मूल राशि (Click to Zoom)</span>
                             </div>
-                            <div class="legend-item">
-                                <div class="legend-color" style="background: #764ba2;"></div>
-                                <span>ब्याज</span>
+                            <div class="legend-item" onclick="zoomChart('pieChart', 'red')" style="cursor: pointer;">
+                                <div class="legend-color" style="background: #dc3545;"></div>
+                                <span>ब्याज (Click to Zoom)</span>
                             </div>
                         </div>
                     </div>
@@ -643,16 +683,18 @@
                     <div class="chart-container">
                         <h3>राशि विभाजन</h3>
                         <div class="chart">
-                            <div class="pie-chart" id="intPieChart"></div>
+                            <div class="pie-chart" id="intPieChart">
+                                <div class="pie-overlay"></div>
+                            </div>
                         </div>
                         <div class="chart-legend">
-                            <div class="legend-item">
-                                <div class="legend-color" style="background: #667eea;"></div>
-                                <span>प्राप्त राशि</span>
+                            <div class="legend-item" onclick="zoomChart('intPieChart', 'green')" style="cursor: pointer;">
+                                <div class="legend-color" style="background: #28a745;"></div>
+                                <span>प्राप्त राशि (Click to Zoom)</span>
                             </div>
-                            <div class="legend-item">
-                                <div class="legend-color" style="background: #764ba2;"></div>
-                                <span>ब्याज</span>
+                            <div class="legend-item" onclick="zoomChart('intPieChart', 'red')" style="cursor: pointer;">
+                                <div class="legend-color" style="background: #dc3545;"></div>
+                                <span>ब्याज (Click to Zoom)</span>
                             </div>
                         </div>
                     </div>
@@ -673,6 +715,69 @@
                     <tbody id="interestScheduleBody"></tbody>
                 </table>
             </div>
+
+            <div style="padding: 0 40px 40px;">
+                <h2 style="margin-bottom: 20px; color: #667eea;">🏦 बैंकों की ब्याज दरें (RBI)</h2>
+                <div style="background: white; border-radius: 10px; padding: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
+                    <p style="margin-bottom: 15px; color: #555;"><strong>आपकी गणना की गई ब्याज दर:</strong> <span style="color: #dc3545; font-size: 1.3em; font-weight: bold;"><span id="yourRate">20.00</span>%</span></p>
+                    <p style="margin-bottom: 20px; color: #666; font-size: 0.95em;">प्रमुख बैंकों की व्यक्तिगत ऋण ब्याज दरों से तुलना करें:</p>
+                    <table style="margin-top: 10px;">
+                        <thead>
+                            <tr>
+                                <th>बैंक का नाम</th>
+                                <th>ब्याज दर (% प्रति वर्ष)</th>
+                                <th>तुलना</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bankRatesBody">
+                            <tr>
+                                <td><strong>SBI (भारतीय स्टेट बैंक)</strong></td>
+                                <td>10.30% - 15.75%</td>
+                                <td id="sbiComp">-</td>
+                            </tr>
+                            <tr>
+                                <td><strong>HDFC Bank</strong></td>
+                                <td>10.50% - 21.00%</td>
+                                <td id="hdfcComp">-</td>
+                            </tr>
+                            <tr>
+                                <td><strong>ICICI Bank</strong></td>
+                                <td>10.75% - 19.00%</td>
+                                <td id="iciciComp">-</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Axis Bank</strong></td>
+                                <td>10.49% - 22.00%</td>
+                                <td id="axisComp">-</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Punjab National Bank</strong></td>
+                                <td>9.75% - 14.95%</td>
+                                <td id="pnbComp">-</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Bank of Baroda</strong></td>
+                                <td>10.15% - 17.40%</td>
+                                <td id="bobComp">-</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Kotak Mahindra Bank</strong></td>
+                                <td>10.99% - 23.99%</td>
+                                <td id="kotakComp">-</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Yes Bank</strong></td>
+                                <td>10.99% - 20.00%</td>
+                                <td id="yesComp">-</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <p style="margin-top: 20px; font-size: 0.9em; color: #888; font-style: italic;">
+                        * ये दरें अनुमानित हैं और बैंक की नीति, ऋण राशि, अवधि और क्रेडिट स्कोर के आधार पर भिन्न हो सकती हैं।<br>
+                        * अक्टूबर 2025 तक की दरें। कृपया नवीनतम दरों के लिए बैंक से संपर्क करें।
+                    </p>
+                </div>
+            </div>
         </div>
 
         <div class="download-buttons">
@@ -687,6 +792,26 @@
 
         function formatNumber(num) {
             return num.toLocaleString('en-IN', {maximumFractionDigits: 0});
+        }
+
+        function zoomChart(chartId, color) {
+            const chart = document.getElementById(chartId);
+            
+            if (color === 'green') {
+                if (chart.classList.contains('zoom-green')) {
+                    chart.classList.remove('zoom-green');
+                } else {
+                    chart.classList.remove('zoom-red');
+                    chart.classList.add('zoom-green');
+                }
+            } else if (color === 'red') {
+                if (chart.classList.contains('zoom-red')) {
+                    chart.classList.remove('zoom-red');
+                } else {
+                    chart.classList.remove('zoom-green');
+                    chart.classList.add('zoom-red');
+                }
+            }
         }
 
         function calculateEMI() {
@@ -826,6 +951,38 @@
             document.getElementById('intPieChart').style.setProperty('--principal-angle', disbursedAngle + 'deg');
 
             generateInstallmentSchedule(installments, installmentAmt, totalRepayment, firstDate, frequency);
+            
+            // Update bank comparison
+            updateBankComparison(interestRate);
+        }
+
+        function updateBankComparison(yourRate) {
+            document.getElementById('yourRate').textContent = yourRate.toFixed(2);
+            
+            const banks = [
+                { id: 'sbiComp', min: 10.30, max: 15.75 },
+                { id: 'hdfcComp', min: 10.50, max: 21.00 },
+                { id: 'iciciComp', min: 10.75, max: 19.00 },
+                { id: 'axisComp', min: 10.49, max: 22.00 },
+                { id: 'pnbComp', min: 9.75, max: 14.95 },
+                { id: 'bobComp', min: 10.15, max: 17.40 },
+                { id: 'kotakComp', min: 10.99, max: 23.99 },
+                { id: 'yesComp', min: 10.99, max: 20.00 }
+            ];
+            
+            banks.forEach(bank => {
+                const elem = document.getElementById(bank.id);
+                if (yourRate < bank.min) {
+                    elem.innerHTML = '<span style="color: #28a745; font-weight: bold;">✓ आपकी दर बेहतर है</span>';
+                    elem.style.background = '#d4edda';
+                } else if (yourRate > bank.max) {
+                    elem.innerHTML = '<span style="color: #dc3545; font-weight: bold;">✗ बैंक से बेहतर</span>';
+                    elem.style.background = '#f8d7da';
+                } else {
+                    elem.innerHTML = '<span style="color: #ffc107; font-weight: bold;">≈ बैंक रेंज में</span>';
+                    elem.style.background = '#fff3cd';
+                }
+            });
         }
 
         function generateInstallmentSchedule(installments, installmentAmt, totalRepayment, firstDateStr, frequency) {
@@ -863,139 +1020,139 @@
         }
 
         async function downloadPDF() {
+            if (typeof html2canvas === 'undefined' || typeof window.jspdf === 'undefined') {
+                alert('कृपया थोड़ा इंतज़ार करें और फिर से try करें। Libraries load हो रही हैं।');
+                return;
+            }
+
             const watermark = document.getElementById('watermark');
+            const downloadBtns = document.querySelector('.download-buttons');
+            const downloadBtn = document.getElementById('downloadPDFBtn');
+            const originalText = downloadBtn.innerHTML;
+            
             watermark.classList.add('show');
+            downloadBtns.classList.add('hide-for-download');
+            downloadBtn.disabled = true;
+            downloadBtn.innerHTML = '⏳ Creating PDF...';
 
-            setTimeout(async () => {
-                try {
-                    // Create canvas from container
-                    const element = document.getElementById('mainContainer');
-                    
-                    // Use DOM to Image approach
-                    const scale = 2;
-                    const canvas = document.createElement('canvas');
-                    const ctx = canvas.getContext('2d');
-                    
-                    const rect = element.getBoundingClientRect();
-                    canvas.width = rect.width * scale;
-                    canvas.height = rect.height * scale;
-                    
-                    ctx.scale(scale, scale);
-                    ctx.fillStyle = '#ffffff';
-                    ctx.fillRect(0, 0, canvas.width, canvas.height);
-                    
-                    // Convert to image using html2canvas alternative
-                    await captureElement(element, canvas, ctx);
-                    
-                    // Create PDF
-                    const imgData = canvas.toDataURL('image/png');
-                    const pdf = createPDF();
-                    
-                    const imgWidth = 210;
-                    const pageHeight = 297;
-                    const imgHeight = (canvas.height * imgWidth) / canvas.width;
-                    
-                    pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
-                    
-                    const fileName = currentTab === 'emi' ? 'EMI_Calculator_Report.pdf' : 'Interest_Calculator_Report.pdf';
-                    pdf.save(fileName);
-                    
-                } catch (error) {
-                    console.error('Error:', error);
-                    // Fallback to print
-                    window.print();
-                } finally {
-                    watermark.classList.remove('show');
+            await new Promise(resolve => setTimeout(resolve, 500));
+
+            try {
+                const element = document.getElementById('mainContainer');
+                
+                const canvas = await html2canvas(element, {
+                    scale: 2,
+                    useCORS: true,
+                    allowTaint: false,
+                    backgroundColor: '#ffffff',
+                    logging: false,
+                    width: element.scrollWidth,
+                    height: element.scrollHeight
+                });
+
+                const imgData = canvas.toDataURL('image/png');
+                const { jsPDF } = window.jspdf;
+                
+                const imgWidth = 210;
+                const pageHeight = 297;
+                const imgHeight = (canvas.height * imgWidth) / canvas.width;
+                
+                const pdf = new jsPDF('p', 'mm', 'a4');
+                let heightLeft = imgHeight;
+                let position = 0;
+
+                pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                heightLeft -= pageHeight;
+
+                while (heightLeft >= 0) {
+                    position = heightLeft - imgHeight;
+                    pdf.addPage();
+                    pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                    heightLeft -= pageHeight;
                 }
-            }, 200);
-        }
 
-        function createPDF() {
-            // Create simple PDF object
-            const doc = {
-                pages: [],
-                addImage: function(data, format, x, y, w, h) {
-                    this.imageData = data;
-                },
-                save: function(filename) {
-                    // Create download link
-                    const link = document.createElement('a');
-                    link.href = this.imageData;
-                    link.download = filename.replace('.pdf', '.png');
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                }
-            };
-            return doc;
-        }
-
-        async function captureElement(element, canvas, ctx) {
-            // Simple capture using SVG foreignObject
-            const data = new XMLSerializer().serializeToString(element);
-            const svg = `
-                <svg xmlns="http://www.w3.org/2000/svg" width="${canvas.width}" height="${canvas.height}">
-                    <foreignObject width="100%" height="100%">
-                        ${data}
-                    </foreignObject>
-                </svg>
-            `;
-            
-            const img = new Image();
-            const blob = new Blob([svg], { type: 'image/svg+xml' });
-            const url = URL.createObjectURL(blob);
-            
-            return new Promise((resolve, reject) => {
-                img.onload = () => {
-                    ctx.drawImage(img, 0, 0);
-                    URL.revokeObjectURL(url);
-                    resolve();
-                };
-                img.onerror = reject;
-                img.src = url;
-            });
+                const fileName = currentTab === 'emi' ? 'EMI_Calculator_Report.pdf' : 'Interest_Calculator_Report.pdf';
+                pdf.save(fileName);
+                
+                downloadBtn.innerHTML = '✓ Downloaded!';
+                setTimeout(() => {
+                    downloadBtn.innerHTML = originalText;
+                    downloadBtn.disabled = false;
+                }, 2000);
+                
+            } catch (error) {
+                console.error('PDF Error:', error);
+                alert('Error: ' + error.message + '\n\nAlternative: Press Ctrl+P and select "Save as PDF"');
+                downloadBtn.innerHTML = originalText;
+                downloadBtn.disabled = false;
+            } finally {
+                downloadBtns.classList.remove('hide-for-download');
+                watermark.classList.remove('show');
+            }
         }
 
         async function downloadJPG() {
-            const watermark = document.getElementById('watermark');
-            watermark.classList.add('show');
+            if (typeof html2canvas === 'undefined') {
+                alert('कृपया थोड़ा इंतज़ार करें और फिर से try करें। Library load हो रही है।');
+                return;
+            }
 
-            setTimeout(async () => {
-                try {
-                    const element = document.getElementById('mainContainer');
-                    const scale = 2;
-                    const canvas = document.createElement('canvas');
-                    const ctx = canvas.getContext('2d');
+            const watermark = document.getElementById('watermark');
+            const downloadBtns = document.querySelector('.download-buttons');
+            const downloadBtn = document.getElementById('downloadJPGBtn');
+            const originalText = downloadBtn.innerHTML;
+            
+            watermark.classList.add('show');
+            downloadBtns.classList.add('hide-for-download');
+            downloadBtn.disabled = true;
+            downloadBtn.innerHTML = '⏳ Creating Image...';
+
+            await new Promise(resolve => setTimeout(resolve, 500));
+
+            try {
+                const element = document.getElementById('mainContainer');
+                
+                const canvas = await html2canvas(element, {
+                    scale: 2,
+                    useCORS: true,
+                    allowTaint: false,
+                    backgroundColor: '#ffffff',
+                    logging: false,
+                    width: element.scrollWidth,
+                    height: element.scrollHeight
+                });
+
+                canvas.toBlob((blob) => {
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    const fileName = currentTab === 'emi' ? 'EMI_Calculator_Report.jpg' : 'Interest_Calculator_Report.jpg';
+                    link.href = url;
+                    link.download = fileName;
+                    link.style.display = 'none';
+                    document.body.appendChild(link);
+                    link.click();
                     
-                    const rect = element.getBoundingClientRect();
-                    canvas.width = rect.width * scale;
-                    canvas.height = rect.height * scale;
-                    
-                    ctx.scale(scale, scale);
-                    ctx.fillStyle = '#ffffff';
-                    ctx.fillRect(0, 0, canvas.width, canvas.height);
-                    
-                    await captureElement(element, canvas, ctx);
-                    
-                    canvas.toBlob(function(blob) {
-                        const url = URL.createObjectURL(blob);
-                        const link = document.createElement('a');
-                        const fileName = currentTab === 'emi' ? 'EMI_Calculator_Report.jpg' : 'Interest_Calculator_Report.jpg';
-                        link.href = url;
-                        link.download = fileName;
-                        document.body.appendChild(link);
-                        link.click();
+                    setTimeout(() => {
                         document.body.removeChild(link);
                         URL.revokeObjectURL(url);
-                    }, 'image/jpeg', 0.95);
+                    }, 100);
                     
-                } catch (error) {
-                    console.error('Error:', error);
-                    alert('Screenshot: Kripya browser ka screenshot tool use karein (Win+Shift+S ya Cmd+Shift+4)');
-                } finally {
-                    watermark.classList.remove('show');
-                }
-            }, 200);
+                    downloadBtn.innerHTML = '✓ Downloaded!';
+                    setTimeout(() => {
+                        downloadBtn.innerHTML = originalText;
+                        downloadBtn.disabled = false;
+                    }, 2000);
+                }, 'image/jpeg', 0.92);
+                
+            } catch (error) {
+                console.error('JPG Error:', error);
+                alert('Error: ' + error.message + '\n\nAlternative: Use screenshot tool (Win+Shift+S)');
+                downloadBtn.innerHTML = originalText;
+                downloadBtn.disabled = false;
+            } finally {
+                downloadBtns.classList.remove('hide-for-download');
+                watermark.classList.remove('show');
+            }
         }
 
         // Event Listeners
