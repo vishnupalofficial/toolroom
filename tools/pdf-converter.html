@@ -16,23 +16,13 @@
             box-sizing: border-box;
         }
 
-        @keyframes gradientShift {
+        @keyframes gradientMove {
             0% { background-position: 0% 50%; }
             50% { background-position: 100% 50%; }
             100% { background-position: 0% 50%; }
         }
 
-        @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-20px); }
-        }
-
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
-
-        @keyframes slideIn {
+        @keyframes fadeInUp {
             from {
                 opacity: 0;
                 transform: translateY(30px);
@@ -43,20 +33,24 @@
             }
         }
 
-        @keyframes rotate {
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        @keyframes spin {
             from { transform: rotate(0deg); }
             to { transform: rotate(360deg); }
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(-45deg, #667eea, #764ba2, #f093fb, #4facfe);
-            background-size: 400% 400%;
-            animation: gradientShift 15s ease infinite;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #7e22ce 100%);
+            background-size: 200% 200%;
+            animation: gradientMove 15s ease infinite;
             min-height: 100vh;
-            padding: 20px;
+            padding: 30px 20px;
             position: relative;
-            overflow-x: hidden;
         }
 
         body::before {
@@ -64,207 +58,205 @@
             position: fixed;
             top: 0;
             left: 0;
-            right: 0;
-            bottom: 0;
-            background: radial-gradient(circle at 20% 50%, rgba(255,255,255,0.1) 0%, transparent 50%),
-                        radial-gradient(circle at 80% 80%, rgba(255,255,255,0.1) 0%, transparent 50%);
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 30% 20%, rgba(255,255,255,0.05) 0%, transparent 50%),
+                        radial-gradient(circle at 70% 80%, rgba(255,255,255,0.03) 0%, transparent 50%);
             pointer-events: none;
-            animation: float 20s ease-in-out infinite;
         }
 
         .container {
-            max-width: 1000px;
+            max-width: 1100px;
             margin: 0 auto;
             position: relative;
             z-index: 1;
-            animation: slideIn 0.8s ease-out;
-        }
-
-        .pro-badge {
-            display: inline-block;
-            background: linear-gradient(135deg, #ffd700, #ffed4e);
-            color: #000;
-            padding: 8px 20px;
-            border-radius: 20px;
-            font-weight: 900;
-            font-size: 14px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
-            animation: pulse 2s ease-in-out infinite;
-            margin-bottom: 15px;
+            animation: fadeInUp 0.8s ease-out;
         }
 
         .header {
             text-align: center;
-            color: white;
-            margin-bottom: 40px;
+            margin-bottom: 50px;
         }
 
-        .header h1 {
-            font-size: 3em;
-            margin-bottom: 10px;
-            text-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        .logo-section {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .logo {
+            font-size: 60px;
+            filter: drop-shadow(0 5px 20px rgba(255,255,255,0.3));
+        }
+
+        .brand-name {
+            font-size: 2.8em;
             font-weight: 900;
-            background: linear-gradient(135deg, #fff, #f0f0f0);
+            background: linear-gradient(135deg, #ffffff 0%, #f0f0f0 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+            letter-spacing: -1px;
         }
 
-        .header p {
-            font-size: 1.2em;
-            opacity: 0.95;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        .pro-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            color: #000;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-weight: 800;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            box-shadow: 0 4px 15px rgba(251, 191, 36, 0.4);
+            margin-left: 10px;
         }
 
-        .quality-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background: rgba(255,255,255,0.2);
-            backdrop-filter: blur(10px);
-            padding: 10px 20px;
-            border-radius: 25px;
-            margin-top: 15px;
-            border: 2px solid rgba(255,255,255,0.3);
+        .tagline {
+            font-size: 1.1em;
+            color: rgba(255,255,255,0.9);
+            font-weight: 500;
+            margin-top: 10px;
         }
 
-        .quality-badge::before {
-            content: '⚡';
-            font-size: 20px;
-        }
-
-        .converter-card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            border-radius: 30px;
-            padding: 50px;
-            box-shadow: 0 30px 90px rgba(0,0,0,0.3);
-            border: 2px solid rgba(255,255,255,0.5);
-            transition: all 0.4s ease;
-        }
-
-        .converter-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 35px 100px rgba(0,0,0,0.4);
-        }
-
-        .tabs {
-            display: flex;
+        .features-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 15px;
             margin-bottom: 40px;
-            background: #f8f9ff;
-            padding: 8px;
-            border-radius: 20px;
         }
 
-        .tab {
-            flex: 1;
-            padding: 18px 30px;
-            background: transparent;
-            border: none;
-            font-size: 17px;
-            font-weight: 700;
-            color: #666;
-            cursor: pointer;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        .feature-card {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            padding: 20px;
             border-radius: 15px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            background: rgba(255,255,255,0.15);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .feature-icon {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .feature-card h3 {
+            color: white;
+            font-size: 15px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .feature-card p {
+            color: rgba(255,255,255,0.8);
+            font-size: 13px;
+        }
+
+        .main-card {
+            background: white;
+            border-radius: 25px;
+            padding: 45px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
             position: relative;
             overflow: hidden;
         }
 
-        .tab::before {
+        .main-card::before {
             content: '';
             position: absolute;
             top: 0;
             left: -100%;
             width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent);
-            transition: left 0.5s;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #7e22ce, transparent);
+            animation: shimmer 3s infinite;
         }
 
-        .tab:hover::before {
-            left: 100%;
+        .tabs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 40px;
+            background: #f8fafc;
+            padding: 6px;
+            border-radius: 15px;
+        }
+
+        .tab {
+            padding: 16px 24px;
+            background: transparent;
+            border: none;
+            font-size: 16px;
+            font-weight: 700;
+            color: #64748b;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-radius: 12px;
         }
 
         .tab.active {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #1e3c72 0%, #7e22ce 100%);
             color: white;
-            transform: scale(1.05);
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 4px 15px rgba(126, 34, 206, 0.3);
         }
 
         .tab-content {
             display: none;
-            animation: slideIn 0.5s ease-out;
+            animation: fadeInUp 0.5s ease-out;
         }
 
         .tab-content.active {
             display: block;
         }
 
-        .upload-area {
-            border: 4px dashed #667eea;
-            border-radius: 25px;
-            padding: 80px 30px;
+        .upload-zone {
+            border: 3px dashed #cbd5e1;
+            border-radius: 20px;
+            padding: 60px 30px;
             text-align: center;
-            background: linear-gradient(135deg, #f8f9ff 0%, #e8ebff 100%);
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            transition: all 0.3s ease;
             cursor: pointer;
-            margin-bottom: 30px;
-            position: relative;
-            overflow: hidden;
+            margin-bottom: 25px;
         }
 
-        .upload-area::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.3), transparent);
-            transform: rotate(45deg);
-            transition: all 0.5s;
+        .upload-zone:hover {
+            border-color: #7e22ce;
+            background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%);
+            transform: scale(1.01);
         }
 
-        .upload-area:hover::before {
-            left: 100%;
-        }
-
-        .upload-area:hover {
-            border-color: #764ba2;
-            background: linear-gradient(135deg, #e8ebff 0%, #d8dbff 100%);
-            transform: scale(1.02);
-            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.2);
-        }
-
-        .upload-area.dragover {
-            border-color: #4facfe;
-            background: linear-gradient(135deg, #d8dbff 0%, #c8cbff 100%);
-            transform: scale(1.05);
-            box-shadow: 0 20px 50px rgba(79, 172, 254, 0.3);
+        .upload-zone.dragover {
+            border-color: #7e22ce;
+            background: #faf5ff;
+            box-shadow: 0 0 0 4px rgba(126, 34, 206, 0.1);
         }
 
         .upload-icon {
-            font-size: 80px;
-            margin-bottom: 25px;
-            animation: float 3s ease-in-out infinite;
-            filter: drop-shadow(0 5px 15px rgba(102, 126, 234, 0.3));
+            font-size: 70px;
+            margin-bottom: 20px;
         }
 
-        .upload-area h3 {
-            color: #333;
-            margin-bottom: 12px;
-            font-size: 1.5em;
+        .upload-zone h3 {
+            color: #1e293b;
+            font-size: 1.4em;
             font-weight: 700;
+            margin-bottom: 10px;
         }
 
-        .upload-area p {
-            color: #666;
-            font-size: 15px;
+        .upload-zone p {
+            color: #64748b;
+            font-size: 14px;
             font-weight: 500;
         }
 
@@ -272,559 +264,538 @@
             display: none;
         }
 
-        .file-info {
-            background: linear-gradient(135deg, #f8f9ff 0%, #e8ebff 100%);
-            padding: 25px;
-            border-radius: 20px;
-            margin-bottom: 25px;
+        .file-info-box {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
             display: none;
-            border: 2px solid #e0e0e0;
-            animation: slideIn 0.5s ease-out;
+            border: 2px solid #e2e8f0;
         }
 
-        .file-info.show {
+        .file-info-box.show {
             display: block;
         }
 
         .file-name {
             font-weight: 700;
-            color: #333;
-            margin-bottom: 8px;
-            font-size: 16px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .file-name::before {
-            content: '📎';
-            font-size: 20px;
-        }
-
-        .file-size {
-            color: #666;
-            font-size: 14px;
-            font-weight: 500;
-        }
-
-        .images-preview {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-            gap: 10px;
-            margin-top: 15px;
-            max-height: 300px;
-            overflow-y: auto;
-        }
-
-        .image-preview-item {
-            position: relative;
-            aspect-ratio: 1;
-            border-radius: 10px;
-            overflow: hidden;
-            border: 2px solid #e0e0e0;
-        }
-
-        .image-preview-item img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .image-preview-item .remove-btn {
-            position: absolute;
-            top: 5px;
-            right: 5px;
-            background: rgba(255,0,0,0.8);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 25px;
-            height: 25px;
-            cursor: pointer;
-            font-size: 16px;
-            line-height: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .filename-input-section {
-            background: white;
-            padding: 20px;
-            border-radius: 15px;
-            margin-bottom: 25px;
-            display: none;
-            border: 2px solid #e0e0e0;
-            animation: slideIn 0.5s ease-out;
-        }
-
-        .filename-input-section.show {
-            display: block;
-        }
-
-        .filename-input-section label {
-            display: block;
-            margin-bottom: 10px;
-            color: #333;
-            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 5px;
             font-size: 15px;
-        }
-
-        .filename-input-section label::before {
-            content: '✏️ ';
-        }
-
-        .filename-input {
-            width: 100%;
-            padding: 15px;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            font-size: 15px;
-            font-weight: 500;
-            transition: all 0.3s;
-        }
-
-        .filename-input:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-
-        .filename-input::placeholder {
-            color: #999;
-        }
-
-        .quality-selector {
-            background: white;
-            padding: 20px;
-            border-radius: 15px;
-            margin-bottom: 25px;
-            display: none;
-            border: 2px solid #e0e0e0;
-        }
-
-        .quality-selector.show {
-            display: block;
-            animation: slideIn 0.5s ease-out;
-        }
-
-        .quality-selector h4 {
-            margin-bottom: 15px;
-            color: #333;
-            font-size: 16px;
-            font-weight: 700;
             display: flex;
             align-items: center;
             gap: 8px;
         }
 
-        .quality-selector h4::before {
-            content: '⚙️';
+        .file-size {
+            color: #64748b;
+            font-size: 13px;
+            font-weight: 500;
         }
 
-        .quality-options {
-            display: flex;
+        .images-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
             gap: 10px;
+            margin-top: 15px;
+            max-height: 280px;
+            overflow-y: auto;
         }
 
-        .quality-option {
-            flex: 1;
-            padding: 12px;
-            border: 2px solid #e0e0e0;
+        .image-item {
+            position: relative;
+            aspect-ratio: 1;
             border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.3s;
-            text-align: center;
-            font-weight: 600;
-            font-size: 14px;
+            overflow: hidden;
+            border: 2px solid #e2e8f0;
         }
 
-        .quality-option:hover {
-            border-color: #667eea;
-            background: #f8f9ff;
-            transform: translateY(-2px);
+        .image-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
-        .quality-option.selected {
-            border-color: #667eea;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        .remove-img {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            background: rgba(239, 68, 68, 0.9);
             color: white;
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+            border: none;
+            border-radius: 50%;
+            width: 22px;
+            height: 22px;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
         }
 
-        .quality-option .label {
-            display: block;
-            font-size: 12px;
-            opacity: 0.8;
-            margin-top: 3px;
+        .remove-img:hover {
+            background: #dc2626;
+            transform: scale(1.1);
         }
 
-        .extract-options {
+        .input-section {
             background: white;
             padding: 20px;
             border-radius: 15px;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
             display: none;
-            border: 2px solid #e0e0e0;
+            border: 2px solid #e2e8f0;
         }
 
-        .extract-options.show {
+        .input-section.show {
             display: block;
-            animation: slideIn 0.5s ease-out;
         }
 
-        .extract-options h4 {
+        .input-section label {
+            display: block;
+            margin-bottom: 10px;
+            color: #1e293b;
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: #7e22ce;
+            box-shadow: 0 0 0 3px rgba(126, 34, 206, 0.1);
+        }
+
+        .quality-box {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            display: none;
+            border: 2px solid #e2e8f0;
+        }
+
+        .quality-box.show {
+            display: block;
+        }
+
+        .quality-box h4 {
             margin-bottom: 15px;
-            color: #333;
-            font-size: 16px;
+            color: #1e293b;
+            font-size: 15px;
             font-weight: 700;
         }
 
-        .extract-format-options {
+        .quality-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            grid-template-columns: repeat(3, 1fr);
             gap: 10px;
         }
 
-        .extract-format-option {
-            padding: 15px;
-            border: 2px solid #e0e0e0;
+        .quality-btn {
+            padding: 14px;
+            border: 2px solid #e2e8f0;
             border-radius: 10px;
             cursor: pointer;
             transition: all 0.3s;
             text-align: center;
             font-weight: 600;
-            font-size: 14px;
+            font-size: 13px;
+            background: white;
         }
 
-        .extract-format-option:hover {
-            border-color: #667eea;
-            background: #f8f9ff;
-            transform: translateY(-2px);
+        .quality-btn:hover {
+            border-color: #7e22ce;
+            background: #faf5ff;
         }
 
-        .extract-format-option.selected {
-            border-color: #667eea;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        .quality-btn.selected {
+            border-color: #7e22ce;
+            background: linear-gradient(135deg, #7e22ce 0%, #6b21a8 100%);
             color: white;
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 4px 12px rgba(126, 34, 206, 0.3);
         }
 
-        .convert-btn {
-            width: 100%;
-            padding: 22px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
+        .extract-box {
+            background: white;
+            padding: 20px;
             border-radius: 15px;
-            font-size: 19px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            margin-bottom: 20px;
             display: none;
-            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
-            position: relative;
-            overflow: hidden;
+            border: 2px solid #e2e8f0;
         }
 
-        .convert-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-            transition: left 0.5s;
-        }
-
-        .convert-btn:hover::before {
-            left: 100%;
-        }
-
-        .convert-btn.show {
+        .extract-box.show {
             display: block;
         }
 
-        .convert-btn:hover:not(:disabled) {
-            transform: translateY(-3px);
-            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.5);
-        }
-
-        .convert-btn:active {
-            transform: translateY(-1px);
-        }
-
-        .convert-btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .supported-formats {
-            margin-top: 40px;
-            padding-top: 35px;
-            border-top: 2px solid #e0e0e0;
-        }
-
-        .supported-formats h4 {
-            color: #333;
-            margin-bottom: 20px;
-            font-size: 1.2em;
+        .extract-box h4 {
+            margin-bottom: 15px;
+            color: #1e293b;
+            font-size: 15px;
             font-weight: 700;
-            text-align: center;
         }
 
-        .format-grid {
+        .extract-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+            gap: 10px;
         }
 
-        .format-item {
-            background: linear-gradient(135deg, #f8f9ff 0%, #e8ebff 100%);
-            padding: 20px;
-            border-radius: 15px;
+        .extract-btn {
+            padding: 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
             text-align: center;
             font-weight: 600;
-            color: #667eea;
-            border: 2px solid transparent;
-            transition: all 0.3s;
+            font-size: 13px;
+            background: white;
         }
 
-        .format-item:hover {
-            border-color: #667eea;
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.2);
+        .extract-btn:hover {
+            border-color: #7e22ce;
+            background: #faf5ff;
         }
 
-        .loading {
+        .extract-btn.selected {
+            border-color: #7e22ce;
+            background: linear-gradient(135deg, #7e22ce 0%, #6b21a8 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(126, 34, 206, 0.3);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .create-btn {
+            flex: 1;
+            padding: 18px;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 17px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: none;
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
+        }
+
+        .create-btn.show {
+            display: block;
+        }
+
+        .create-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 28px rgba(16, 185, 129, 0.4);
+        }
+
+        .create-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .new-file-btn {
+            padding: 18px 30px;
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 17px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: none;
+            box-shadow: 0 8px 20px rgba(239, 68, 68, 0.3);
+            white-space: nowrap;
+        }
+
+        .new-file-btn.show {
+            display: block;
+        }
+
+        .new-file-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 28px rgba(239, 68, 68, 0.4);
+        }
+
+        .loading-box {
             display: none;
             text-align: center;
             padding: 30px;
         }
 
-        .loading.show {
+        .loading-box.show {
             display: block;
-            animation: slideIn 0.5s ease-out;
         }
 
         .spinner {
-            border: 5px solid #f3f3f3;
-            border-top: 5px solid #667eea;
+            border: 4px solid #f1f5f9;
+            border-top: 4px solid #7e22ce;
             border-radius: 50%;
-            width: 60px;
-            height: 60px;
-            animation: rotate 1s linear infinite;
-            margin: 0 auto 20px;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
         }
 
-        .loading p {
+        .loading-box p {
             font-weight: 600;
-            color: #666;
-            font-size: 16px;
+            color: #64748b;
+            font-size: 15px;
         }
 
-        .status-message {
-            margin-top: 25px;
-            padding: 20px;
-            border-radius: 15px;
+        .message-box {
+            margin-top: 20px;
+            padding: 18px;
+            border-radius: 12px;
             display: none;
             font-weight: 600;
-            animation: slideIn 0.5s ease-out;
+            font-size: 14px;
         }
 
-        .status-message.show {
+        .message-box.show {
             display: block;
         }
 
-        .status-message.success {
-            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
-            color: #155724;
-            border: 2px solid #b1dfbb;
+        .message-box.success {
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+            color: #065f46;
+            border: 2px solid #6ee7b7;
         }
 
-        .status-message.error {
-            background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
-            color: #721c24;
-            border: 2px solid #f1b0b7;
+        .message-box.error {
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            color: #991b1b;
+            border: 2px solid #fca5a5;
         }
 
-        .features {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-top: 30px;
+        .formats-section {
+            margin-top: 35px;
+            padding-top: 30px;
+            border-top: 2px solid #e2e8f0;
         }
 
-        .feature {
-            background: rgba(255,255,255,0.5);
-            backdrop-filter: blur(10px);
-            padding: 20px;
-            border-radius: 15px;
+        .formats-section h4 {
+            color: #1e293b;
+            margin-bottom: 20px;
+            font-size: 1.1em;
+            font-weight: 700;
             text-align: center;
-            border: 2px solid rgba(255,255,255,0.8);
+        }
+
+        .formats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 15px;
+        }
+
+        .format-card {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            padding: 18px;
+            border-radius: 12px;
+            text-align: center;
+            font-weight: 600;
+            color: #1e293b;
+            border: 2px solid #e2e8f0;
             transition: all 0.3s;
         }
 
-        .feature:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        .format-card:hover {
+            border-color: #7e22ce;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(126, 34, 206, 0.15);
         }
 
-        .feature-icon {
-            font-size: 40px;
-            margin-bottom: 10px;
-        }
-
-        .feature h3 {
-            color: white;
-            font-size: 16px;
-            font-weight: 700;
-            margin-bottom: 5px;
-            text-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        }
-
-        .feature p {
-            color: rgba(255,255,255,0.9);
-            font-size: 13px;
-            text-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        @media (max-width: 768px) {
+            .brand-name {
+                font-size: 2em;
+            }
+            
+            .main-card {
+                padding: 30px 20px;
+            }
+            
+            .quality-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .new-file-btn {
+                white-space: normal;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <div class="pro-badge">✨ PRO VERSION</div>
-            <h1>📄 PDF Converter Pro</h1>
-            <p>Premium Quality Document Conversion</p>
-            <div class="quality-badge">Maximum Quality • Professional Output</div>
+            <div class="logo-section">
+                <div class="logo">📄</div>
+                <div>
+                    <div style="display: flex; align-items: center; justify-content: center;">
+                        <span class="brand-name">ToolRoom</span>
+                        <span class="pro-badge">PRO</span>
+                    </div>
+                    <p class="tagline">Professional PDF Converter</p>
+                </div>
+            </div>
         </div>
 
-        <div class="features">
-            <div class="feature">
+        <div class="features-bar">
+            <div class="feature-card">
+                <div class="feature-icon">⚡</div>
+                <h3>Ultra Fast</h3>
+                <p>Lightning speed processing</p>
+            </div>
+            <div class="feature-card">
                 <div class="feature-icon">🎯</div>
                 <h3>High Quality</h3>
-                <p>Maximum resolution & clarity</p>
+                <p>Premium output guaranteed</p>
             </div>
-            <div class="feature">
-                <div class="feature-icon">⚡</div>
-                <h3>Fast Processing</h3>
-                <p>Quick & efficient conversion</p>
-            </div>
-            <div class="feature">
+            <div class="feature-card">
                 <div class="feature-icon">🔒</div>
                 <h3>100% Secure</h3>
-                <p>All processing in browser</p>
+                <p>All data stays local</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🚀</div>
+                <h3>No Limits</h3>
+                <p>Unlimited conversions</p>
             </div>
         </div>
 
-        <div class="converter-card">
+        <div class="main-card">
             <div class="tabs">
                 <button class="tab active" data-tab="toPdf">📤 Convert to PDF</button>
                 <button class="tab" data-tab="fromPdf">📥 Extract from PDF</button>
             </div>
 
             <div id="toPdfTab" class="tab-content active">
-                <div class="upload-area" id="uploadArea1">
+                <div class="upload-zone" id="uploadZone1">
                     <div class="upload-icon">📁</div>
                     <h3>Drop Your Files Here</h3>
-                    <p>Supports: Word (.docx), Excel (.xlsx, .xls), Multiple Images (Up to 10000)</p>
+                    <p>Word, Excel, Images (Max 10000) • Drag & Drop or Click</p>
                     <input type="file" id="fileInput1" accept=".docx,.xlsx,.xls,.jpg,.jpeg,.png,.gif" multiple>
                 </div>
 
-                <div class="file-info" id="fileInfo1">
+                <div class="file-info-box" id="fileInfo1">
                     <div class="file-name" id="fileName1"></div>
                     <div class="file-size" id="fileSize1"></div>
-                    <div class="images-preview" id="imagesPreview"></div>
+                    <div class="images-grid" id="imagesGrid"></div>
                 </div>
 
-                <div class="filename-input-section" id="filenameSection1">
-                    <label for="outputFilename1">Output Filename (Optional)</label>
-                    <input type="text" id="outputFilename1" class="filename-input" placeholder="Leave empty for auto naming (ToolRoom_Document)">
+                <div class="input-section" id="nameSection1">
+                    <label for="outputName1">📝 Output Filename (Optional)</label>
+                    <input type="text" id="outputName1" class="input-field" placeholder="Leave empty for auto naming (ToolRoom_Document)">
                 </div>
 
-                <div class="quality-selector" id="qualitySelector">
-                    <h4>Quality Settings</h4>
-                    <div class="quality-options">
-                        <div class="quality-option" data-quality="standard">
+                <div class="quality-box" id="qualityBox">
+                    <h4>⚙️ Quality Settings</h4>
+                    <div class="quality-grid">
+                        <div class="quality-btn" data-quality="standard">
                             <div>📄 Standard</div>
-                            <div class="label">Good</div>
+                            <div style="font-size: 11px; opacity: 0.8;">Good</div>
                         </div>
-                        <div class="quality-option selected" data-quality="high">
+                        <div class="quality-btn selected" data-quality="high">
                             <div>⭐ High</div>
-                            <div class="label">Better</div>
+                            <div style="font-size: 11px; opacity: 0.8;">Better</div>
                         </div>
-                        <div class="quality-option" data-quality="ultra">
+                        <div class="quality-btn" data-quality="ultra">
                             <div>💎 Ultra</div>
-                            <div class="label">Best</div>
+                            <div style="font-size: 11px; opacity: 0.8;">Best</div>
                         </div>
                     </div>
                 </div>
 
-                <button class="convert-btn" id="convertBtn1">🚀 Convert to Premium PDF</button>
-
-                <div class="loading" id="loading1">
-                    <div class="spinner"></div>
-                    <p>Processing with maximum quality...</p>
+                <div class="action-buttons">
+                    <button class="create-btn" id="createBtn1">✨ Create PDF</button>
+                    <button class="new-file-btn" id="newFileBtn1">🔄 New File</button>
                 </div>
 
-                <div class="status-message" id="status1"></div>
+                <div class="loading-box" id="loading1">
+                    <div class="spinner"></div>
+                    <p>Creating premium PDF...</p>
+                </div>
 
-                <div class="supported-formats">
+                <div class="message-box" id="message1"></div>
+
+                <div class="formats-section">
                     <h4>✨ Supported Formats</h4>
-                    <div class="format-grid">
-                        <div class="format-item">📝 Word (.docx)</div>
-                        <div class="format-item">📊 Excel (.xlsx, .xls)</div>
-                        <div class="format-item">🖼️ Multiple Images (Max 10000)</div>
+                    <div class="formats-grid">
+                        <div class="format-card">📝 Word (.docx)</div>
+                        <div class="format-card">📊 Excel (All Sheets)</div>
+                        <div class="format-card">🖼️ Images (Max 10000)</div>
                     </div>
                 </div>
             </div>
 
             <div id="fromPdfTab" class="tab-content">
-                <div class="upload-area" id="uploadArea2">
+                <div class="upload-zone" id="uploadZone2">
                     <div class="upload-icon">📄</div>
-                    <h3>Upload Your PDF File</h3>
-                    <p>Extract to Text, Word, Excel, or Images</p>
+                    <h3>Upload Your PDF</h3>
+                    <p>Extract to Text, Word, Excel or Images</p>
                     <input type="file" id="fileInput2" accept=".pdf">
                 </div>
 
-                <div class="file-info" id="fileInfo2">
+                <div class="file-info-box" id="fileInfo2">
                     <div class="file-name" id="fileName2"></div>
                     <div class="file-size" id="fileSize2"></div>
                 </div>
 
-                <div class="extract-options" id="extractOptions">
+                <div class="extract-box" id="extractBox">
                     <h4>📤 Extract Format</h4>
-                    <div class="extract-format-options">
-                        <div class="extract-format-option selected" data-format="text">📝 Text</div>
-                        <div class="extract-format-option" data-format="word">📄 Word</div>
-                        <div class="extract-format-option" data-format="excel">📊 Excel</div>
-                        <div class="extract-format-option" data-format="images">🖼️ Images</div>
+                    <div class="extract-grid">
+                        <div class="extract-btn selected" data-format="text">📝 Text</div>
+                        <div class="extract-btn" data-format="word">📄 Word</div>
+                        <div class="extract-btn" data-format="excel">📊 Excel</div>
+                        <div class="extract-btn" data-format="images">🖼️ Images</div>
                     </div>
                 </div>
 
-                <div class="filename-input-section" id="filenameSection2">
-                    <label for="outputFilename2">Output Filename (Optional)</label>
-                    <input type="text" id="outputFilename2" class="filename-input" placeholder="Leave empty for auto naming (ToolRoom_Extracted)">
+                <div class="input-section" id="nameSection2">
+                    <label for="outputName2">📝 Output Filename (Optional)</label>
+                    <input type="text" id="outputName2" class="input-field" placeholder="Leave empty for auto naming (ToolRoom_Extracted)">
                 </div>
 
-                <button class="convert-btn" id="convertBtn2">🔍 Extract Content</button>
+                <div class="action-buttons">
+                    <button class="create-btn" id="createBtn2">✨ Extract Content</button>
+                    <button class="new-file-btn" id="newFileBtn2">🔄 New File</button>
+                </div>
 
-                <div class="loading" id="loading2">
+                <div class="loading-box" id="loading2">
                     <div class="spinner"></div>
-                    <p>Extracting content with precision...</p>
+                    <p>Extracting content...</p>
                 </div>
 
-                <div class="status-message" id="status2"></div>
+                <div class="message-box" id="message2"></div>
 
-                <div class="supported-formats">
+                <div class="formats-section">
                     <h4>✨ Extraction Options</h4>
-                    <div class="format-grid">
-                        <div class="format-item">📝 Text (.txt)</div>
-                        <div class="format-item">📄 Word (.docx)</div>
-                        <div class="format-item">📊 Excel (.xlsx)</div>
-                        <div class="format-item">🖼️ Images (.zip)</div>
+                    <div class="formats-grid">
+                        <div class="format-card">📝 Text (.txt)</div>
+                        <div class="format-card">📄 Word (.doc)</div>
+                        <div class="format-card">📊 Excel (.xlsx)</div>
+                        <div class="format-card">🖼️ Images (.zip)</div>
                     </div>
                 </div>
             </div>
@@ -853,38 +824,35 @@
             });
 
             // Quality selection
-            document.querySelectorAll('.quality-option').forEach(option => {
-                option.addEventListener('click', function() {
+            document.querySelectorAll('.quality-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
                     qualityLevel = this.getAttribute('data-quality');
-                    document.querySelectorAll('.quality-option').forEach(opt => {
-                        opt.classList.remove('selected');
-                    });
+                    document.querySelectorAll('.quality-btn').forEach(b => b.classList.remove('selected'));
                     this.classList.add('selected');
                 });
             });
 
             // Extract format selection
-            document.querySelectorAll('.extract-format-option').forEach(option => {
-                option.addEventListener('click', function() {
+            document.querySelectorAll('.extract-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
                     extractFormat = this.getAttribute('data-format');
-                    document.querySelectorAll('.extract-format-option').forEach(opt => {
-                        opt.classList.remove('selected');
-                    });
+                    document.querySelectorAll('.extract-btn').forEach(b => b.classList.remove('selected'));
                     this.classList.add('selected');
                 });
             });
 
-            // File input handling
-            document.getElementById('uploadArea1').addEventListener('click', function(e) {
-                if (!e.target.classList.contains('remove-btn')) {
+            // Upload zones
+            document.getElementById('uploadZone1').addEventListener('click', function(e) {
+                if (!e.target.classList.contains('remove-img')) {
                     document.getElementById('fileInput1').click();
                 }
             });
 
-            document.getElementById('uploadArea2').addEventListener('click', function() {
+            document.getElementById('uploadZone2').addEventListener('click', function() {
                 document.getElementById('fileInput2').click();
             });
 
+            // File inputs
             document.getElementById('fileInput1').addEventListener('change', function(e) {
                 handleFileSelect(Array.from(e.target.files), 1);
             });
@@ -896,49 +864,61 @@
             });
 
             // Drag and drop
-            ['uploadArea1', 'uploadArea2'].forEach(id => {
-                const area = document.getElementById(id);
+            ['uploadZone1', 'uploadZone2'].forEach(id => {
+                const zone = document.getElementById(id);
                 
-                area.addEventListener('dragover', (e) => {
+                zone.addEventListener('dragover', (e) => {
                     e.preventDefault();
-                    area.classList.add('dragover');
+                    zone.classList.add('dragover');
                 });
 
-                area.addEventListener('dragleave', () => {
-                    area.classList.remove('dragover');
+                zone.addEventListener('dragleave', () => {
+                    zone.classList.remove('dragover');
                 });
 
-                area.addEventListener('drop', (e) => {
+                zone.addEventListener('drop', (e) => {
                     e.preventDefault();
-                    area.classList.remove('dragover');
-                    const num = id === 'uploadArea1' ? 1 : 2;
+                    zone.classList.remove('dragover');
+                    const num = id === 'uploadZone1' ? 1 : 2;
                     const files = num === 1 ? Array.from(e.dataTransfer.files) : [e.dataTransfer.files[0]];
                     handleFileSelect(files, num);
                 });
             });
 
-            // Convert buttons
-            document.getElementById('convertBtn1').addEventListener('click', convertToPdf);
-            document.getElementById('convertBtn2').addEventListener('click', extractFromPdf);
+            // Create buttons
+            document.getElementById('createBtn1').addEventListener('click', convertToPdf);
+            document.getElementById('createBtn2').addEventListener('click', extractFromPdf);
+            
+            // New file buttons
+            document.getElementById('newFileBtn1').addEventListener('click', function() {
+                resetUI(1);
+            });
+            document.getElementById('newFileBtn2').addEventListener('click', function() {
+                resetUI(2);
+            });
         });
 
         function resetUI(num) {
             document.getElementById(`fileInfo${num}`).classList.remove('show');
-            document.getElementById(`filenameSection${num}`).classList.remove('show');
-            document.getElementById(`convertBtn${num}`).classList.remove('show');
-            document.getElementById(`status${num}`).classList.remove('show');
+            document.getElementById(`nameSection${num}`).classList.remove('show');
+            document.getElementById(`createBtn${num}`).classList.remove('show');
+            document.getElementById(`newFileBtn${num}`).classList.remove('show');
+            document.getElementById(`message${num}`).classList.remove('show');
             document.getElementById(`loading${num}`).classList.remove('show');
-            document.getElementById(`outputFilename${num}`).value = '';
+            document.getElementById(`outputName${num}`).value = '';
             document.getElementById(`fileInput${num}`).value = '';
             
             if (num === 1) {
-                document.getElementById('qualitySelector').classList.remove('show');
-                document.getElementById('imagesPreview').innerHTML = '';
+                document.getElementById('qualityBox').classList.remove('show');
+                document.getElementById('imagesGrid').innerHTML = '';
                 selectedFiles = [];
             } else {
-                document.getElementById('extractOptions').classList.remove('show');
+                document.getElementById('extractBox').classList.remove('show');
                 selectedFile2 = null;
             }
+            
+            const btn = document.getElementById(`createBtn${num}`);
+            btn.disabled = false;
         }
 
         function handleFileSelect(files, num) {
@@ -947,12 +927,12 @@
             resetUI(num);
 
             if (num === 1) {
-                const imageExtensions = ['jpg', 'jpeg', 'png', 'gif'];
+                const imageExts = ['jpg', 'jpeg', 'png', 'gif'];
                 const firstExt = files[0].name.split('.').pop().toLowerCase();
                 
-                if (imageExtensions.includes(firstExt)) {
+                if (imageExts.includes(firstExt)) {
                     if (files.length > 10000) {
-                        showStatus(1, '✗ Maximum 10000 images allowed!', true);
+                        showMessage(1, '✗ Maximum 10000 images allowed!', true);
                         return;
                     }
                     
@@ -963,54 +943,55 @@
                     files.forEach(f => totalSize += f.size);
                     document.getElementById('fileSize1').textContent = formatFileSize(totalSize);
                     
-                    displayImagePreviews(files);
+                    displayImages(files);
                 } else {
                     if (files.length > 1) {
-                        showStatus(1, '✗ Only one document file allowed at a time!', true);
+                        showMessage(1, '✗ Only one document file at a time!', true);
                         return;
                     }
                     selectedFiles = [files[0]];
-                    document.getElementById('fileName1').textContent = files[0].name;
+                    document.getElementById('fileName1').textContent = '📎 ' + files[0].name;
                     document.getElementById('fileSize1').textContent = formatFileSize(files[0].size);
                 }
                 
-                document.getElementById('qualitySelector').classList.add('show');
+                document.getElementById('qualityBox').classList.add('show');
             } else {
                 selectedFile2 = files[0];
-                document.getElementById('fileName2').textContent = files[0].name;
+                document.getElementById('fileName2').textContent = '📎 ' + files[0].name;
                 document.getElementById('fileSize2').textContent = formatFileSize(files[0].size);
-                document.getElementById('extractOptions').classList.add('show');
+                document.getElementById('extractBox').classList.add('show');
             }
 
             document.getElementById(`fileInfo${num}`).classList.add('show');
-            document.getElementById(`filenameSection${num}`).classList.add('show');
-            document.getElementById(`convertBtn${num}`).classList.add('show');
+            document.getElementById(`nameSection${num}`).classList.add('show');
+            document.getElementById(`createBtn${num}`).classList.add('show');
+            document.getElementById(`newFileBtn${num}`).classList.add('show');
         }
 
-        function displayImagePreviews(files) {
-            const container = document.getElementById('imagesPreview');
-            container.innerHTML = '';
+        function displayImages(files) {
+            const grid = document.getElementById('imagesGrid');
+            grid.innerHTML = '';
             
-            const maxPreviews = Math.min(files.length, 50);
+            const maxShow = Math.min(files.length, 50);
             
-            for (let i = 0; i < maxPreviews; i++) {
+            for (let i = 0; i < maxShow; i++) {
                 const file = files[i];
                 const reader = new FileReader();
                 
                 reader.onload = function(e) {
                     const div = document.createElement('div');
-                    div.className = 'image-preview-item';
+                    div.className = 'image-item';
                     div.innerHTML = `
                         <img src="${e.target.result}" alt="Preview">
-                        <button class="remove-btn" data-index="${i}">×</button>
+                        <button class="remove-img" data-index="${i}">×</button>
                     `;
                     
-                    div.querySelector('.remove-btn').addEventListener('click', function(event) {
+                    div.querySelector('.remove-img').addEventListener('click', function(event) {
                         event.stopPropagation();
                         removeImage(parseInt(this.getAttribute('data-index')));
                     });
                     
-                    container.appendChild(div);
+                    grid.appendChild(div);
                 };
                 
                 reader.readAsDataURL(file);
@@ -1020,10 +1001,11 @@
                 const info = document.createElement('div');
                 info.style.gridColumn = '1 / -1';
                 info.style.textAlign = 'center';
-                info.style.padding = '10px';
-                info.style.color = '#666';
+                info.style.padding = '15px';
+                info.style.color = '#64748b';
+                info.style.fontWeight = '600';
                 info.textContent = `+ ${files.length - 50} more images`;
-                container.appendChild(info);
+                grid.appendChild(info);
             }
         }
 
@@ -1042,20 +1024,20 @@
             return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
         }
 
-        function showStatus(num, message, isError = false) {
-            const status = document.getElementById(`status${num}`);
-            status.className = 'status-message show ' + (isError ? 'error' : 'success');
-            status.textContent = message;
+        function showMessage(num, msg, isError = false) {
+            const box = document.getElementById(`message${num}`);
+            box.className = 'message-box show ' + (isError ? 'error' : 'success');
+            box.textContent = msg;
         }
 
-        function getOutputFilename(num, defaultName, extension) {
-            const inputValue = document.getElementById(`outputFilename${num}`).value.trim();
+        function getOutputName(num, defaultName, ext) {
+            const val = document.getElementById(`outputName${num}`).value.trim();
             
-            if (inputValue) {
-                return inputValue.endsWith(extension) ? inputValue : inputValue + extension;
+            if (val) {
+                return val.endsWith(ext) ? val : val + ext;
             }
             
-            return `ToolRoom_${defaultName}${extension}`;
+            return `ToolRoom_${defaultName}${ext}`;
         }
 
         function downloadFile(blob, filename) {
@@ -1085,7 +1067,7 @@
             if (!selectedFiles || selectedFiles.length === 0) return;
 
             const loading = document.getElementById('loading1');
-            const btn = document.getElementById('convertBtn1');
+            const btn = document.getElementById('createBtn1');
             
             btn.disabled = true;
             loading.classList.add('show');
@@ -1093,26 +1075,25 @@
 
             try {
                 const ext = selectedFiles[0].name.split('.').pop().toLowerCase();
-                const imageExtensions = ['jpg', 'jpeg', 'png', 'gif'];
+                const imageExts = ['jpg', 'jpeg', 'png', 'gif'];
 
                 if (ext === 'docx') {
                     await convertWordToPdf(selectedFiles[0]);
                 } else if (ext === 'xlsx' || ext === 'xls') {
                     await convertExcelToPdf(selectedFiles[0]);
-                } else if (imageExtensions.includes(ext)) {
+                } else if (imageExts.includes(ext)) {
                     await convertImagesToPdf(selectedFiles);
                 } else {
                     throw new Error('Unsupported file format');
                 }
 
-                showStatus(1, '✓ Successfully converted to Premium PDF! Check your downloads.');
-                setTimeout(() => resetUI(1), 3000);
+                showMessage(1, '✓ Successfully created! Check your downloads.');
             } catch (error) {
-                console.error('Conversion error:', error);
-                showStatus(1, '✗ Error: ' + error.message, true);
+                console.error('Error:', error);
+                showMessage(1, '✗ Error: ' + error.message, true);
             } finally {
                 loading.classList.remove('show');
-                btn.classList.add('show');
+                btn.style.display = 'block';
                 btn.disabled = false;
             }
         }
@@ -1121,7 +1102,7 @@
             if (!selectedFile2) return;
 
             const loading = document.getElementById('loading2');
-            const btn = document.getElementById('convertBtn2');
+            const btn = document.getElementById('createBtn2');
             
             btn.disabled = true;
             loading.classList.add('show');
@@ -1138,14 +1119,13 @@
                     await extractImages();
                 }
                 
-                showStatus(2, '✓ Successfully extracted content! Check your downloads.');
-                setTimeout(() => resetUI(2), 3000);
+                showMessage(2, '✓ Successfully extracted! Check your downloads.');
             } catch (error) {
-                console.error('Extraction error:', error);
-                showStatus(2, '✗ Error: ' + error.message, true);
+                console.error('Error:', error);
+                showMessage(2, '✗ Error: ' + error.message, true);
             } finally {
                 loading.classList.remove('show');
-                btn.classList.add('show');
+                btn.style.display = 'block';
                 btn.disabled = false;
             }
         }
@@ -1167,7 +1147,7 @@
             const text = result.value;
 
             if (!text || text.trim().length === 0) {
-                throw new Error('No text content found in the document');
+                throw new Error('No text content found');
             }
 
             const settings = getQualitySettings();
@@ -1193,20 +1173,17 @@
                 y += settings.lineHeight;
             }
 
-            const pdfBlob = pdf.output('blob');
-            const filename = getOutputFilename(1, 'Document', '.pdf');
+            const blob = pdf.output('blob');
+            const filename = getOutputName(1, 'Document', '.pdf');
             
-            if (!downloadFile(pdfBlob, filename)) {
-                throw new Error('Failed to download PDF');
+            if (!downloadFile(blob, filename)) {
+                throw new Error('Failed to download');
             }
         }
 
         async function convertExcelToPdf(file) {
             const data = await file.arrayBuffer();
             const workbook = XLSX.read(data, { type: 'array' });
-            const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-            
-            const range = XLSX.utils.decode_range(firstSheet['!ref']);
             
             const settings = getQualitySettings();
             const pdf = new jsPDF({
@@ -1214,50 +1191,65 @@
                 compress: settings.compression !== 'NONE'
             });
             
-            const pageHeight = pdf.internal.pageSize.getHeight();
-            const pageWidth = pdf.internal.pageSize.getWidth();
-            const margin = 15;
-            const cellPadding = 3;
-            let y = margin;
+            let isFirst = true;
             
-            pdf.setFontSize(settings.fontSize - 2);
-            
-            const numCols = range.e.c - range.s.c + 1;
-            const availableWidth = pageWidth - 2 * margin;
-            const colWidth = availableWidth / numCols;
-            
-            for (let row = range.s.r; row <= range.e.r; row++) {
-                let maxHeight = settings.lineHeight;
-                let rowData = [];
+            for (let sheetName of workbook.SheetNames) {
+                const sheet = workbook.Sheets[sheetName];
+                const range = XLSX.utils.decode_range(sheet['!ref']);
                 
-                for (let col = range.s.c; col <= range.e.c; col++) {
-                    const cellAddress = XLSX.utils.encode_cell({ r: row, c: col });
-                    const cell = firstSheet[cellAddress];
-                    const cellValue = cell ? String(cell.v) : '';
-                    rowData.push(cellValue);
-                }
-                
-                if (y + maxHeight > pageHeight - margin) {
+                if (!isFirst) {
                     pdf.addPage();
-                    y = margin;
                 }
+                isFirst = false;
                 
-                let x = margin;
-                for (let i = 0; i < rowData.length; i++) {
-                    pdf.rect(x, y - settings.lineHeight + 2, colWidth, settings.lineHeight + 2);
-                    const text = pdf.splitTextToSize(rowData[i], colWidth - 2 * cellPadding);
-                    pdf.text(text[0] || '', x + cellPadding, y);
-                    x += colWidth;
+                const pageHeight = pdf.internal.pageSize.getHeight();
+                const pageWidth = pdf.internal.pageSize.getWidth();
+                const margin = 15;
+                const cellPadding = 3;
+                let y = margin + 15;
+                
+                pdf.setFontSize(settings.fontSize + 2);
+                pdf.setFont(undefined, 'bold');
+                pdf.text(sheetName, margin, margin + 10);
+                pdf.setFont(undefined, 'normal');
+                pdf.setFontSize(settings.fontSize - 2);
+                
+                const numCols = range.e.c - range.s.c + 1;
+                const availableWidth = pageWidth - 2 * margin;
+                const colWidth = availableWidth / numCols;
+                
+                for (let row = range.s.r; row <= range.e.r; row++) {
+                    let rowData = [];
+                    
+                    for (let col = range.s.c; col <= range.e.c; col++) {
+                        const cellAddress = XLSX.utils.encode_cell({ r: row, c: col });
+                        const cell = sheet[cellAddress];
+                        const cellValue = cell ? String(cell.v) : '';
+                        rowData.push(cellValue);
+                    }
+                    
+                    if (y + settings.lineHeight > pageHeight - margin) {
+                        pdf.addPage();
+                        y = margin;
+                    }
+                    
+                    let x = margin;
+                    for (let i = 0; i < rowData.length; i++) {
+                        pdf.rect(x, y - settings.lineHeight + 2, colWidth, settings.lineHeight + 2);
+                        const text = pdf.splitTextToSize(rowData[i], colWidth - 2 * cellPadding);
+                        pdf.text(text[0] || '', x + cellPadding, y);
+                        x += colWidth;
+                    }
+                    
+                    y += settings.lineHeight + 2;
                 }
-                
-                y += settings.lineHeight + 2;
             }
 
-            const pdfBlob = pdf.output('blob');
-            const filename = getOutputFilename(1, 'Spreadsheet', '.pdf');
+            const blob = pdf.output('blob');
+            const filename = getOutputName(1, 'Spreadsheet', '.pdf');
             
-            if (!downloadFile(pdfBlob, filename)) {
-                throw new Error('Failed to download PDF');
+            if (!downloadFile(blob, filename)) {
+                throw new Error('Failed to download');
             }
         }
 
@@ -1267,15 +1259,15 @@
                 compress: settings.compression !== 'NONE'
             });
             
-            let isFirstPage = true;
+            let isFirst = true;
             
             for (let file of files) {
-                const imageData = await loadImage(file);
+                const imgData = await loadImage(file);
                 
-                if (!isFirstPage) {
+                if (!isFirst) {
                     pdf.addPage();
                 }
-                isFirstPage = false;
+                isFirst = false;
                 
                 const pageWidth = pdf.internal.pageSize.getWidth();
                 const pageHeight = pdf.internal.pageSize.getHeight();
@@ -1283,8 +1275,8 @@
                 const maxWidth = pageWidth - 2 * margin;
                 const maxHeight = pageHeight - 2 * margin;
                 
-                let imgWidth = imageData.width;
-                let imgHeight = imageData.height;
+                let imgWidth = imgData.width;
+                let imgHeight = imgData.height;
                 
                 const widthRatio = maxWidth / imgWidth;
                 const heightRatio = maxHeight / imgHeight;
@@ -1297,14 +1289,14 @@
                 const yPos = (pageHeight - imgHeight) / 2;
                 
                 const format = file.type.includes('png') ? 'PNG' : 'JPEG';
-                pdf.addImage(imageData.dataUrl, format, xPos, yPos, imgWidth, imgHeight, undefined, settings.imageQuality === 1.0 ? 'NONE' : 'FAST');
+                pdf.addImage(imgData.dataUrl, format, xPos, yPos, imgWidth, imgHeight, undefined, settings.imageQuality === 1.0 ? 'NONE' : 'FAST');
             }
             
-            const pdfBlob = pdf.output('blob');
-            const filename = getOutputFilename(1, 'Images', '.pdf');
+            const blob = pdf.output('blob');
+            const filename = getOutputName(1, 'Images', '.pdf');
             
-            if (!downloadFile(pdfBlob, filename)) {
-                throw new Error('Failed to download PDF');
+            if (!downloadFile(blob, filename)) {
+                throw new Error('Failed to download');
             }
         }
 
@@ -1347,10 +1339,10 @@
             }
 
             const blob = new Blob([textContent], { type: 'text/plain;charset=utf-8' });
-            const filename = getOutputFilename(2, 'Extracted', '.txt');
+            const filename = getOutputName(2, 'Extracted', '.txt');
             
             if (!downloadFile(blob, filename)) {
-                throw new Error('Failed to download extracted text');
+                throw new Error('Failed to download');
             }
         }
 
@@ -1377,10 +1369,10 @@
 </w:wordDocument>`;
 
             const blob = new Blob([docContent], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
-            const filename = getOutputFilename(2, 'Extracted', '.doc');
+            const filename = getOutputName(2, 'Extracted', '.doc');
             
             if (!downloadFile(blob, filename)) {
-                throw new Error('Failed to download Word document');
+                throw new Error('Failed to download');
             }
         }
 
@@ -1393,26 +1385,50 @@
 
             for (let i = 1; i <= pdf.numPages; i++) {
                 const page = await pdf.getPage(i);
-                const text = await page.getTextContent();
-                const pageText = text.items.map(item => item.str).join(' ');
-                const lines = pageText.split(/\s{2,}/);
-                lines.forEach(line => {
-                    if (line.trim()) {
-                        allData.push([`Page ${i}`, line.trim()]);
+                const textContent = await page.getTextContent();
+                
+                const rows = {};
+                textContent.items.forEach(item => {
+                    const y = Math.round(item.transform[5]);
+                    if (!rows[y]) {
+                        rows[y] = [];
+                    }
+                    rows[y].push({
+                        text: item.str,
+                        x: item.transform[4]
+                    });
+                });
+                
+                const sortedY = Object.keys(rows).sort((a, b) => b - a);
+                
+                sortedY.forEach(y => {
+                    rows[y].sort((a, b) => a.x - b.x);
+                    const rowData = rows[y].map(item => item.text);
+                    
+                    if (rowData.some(cell => cell.trim())) {
+                        allData.push(rowData);
                     }
                 });
+                
+                if (i < pdf.numPages) {
+                    allData.push([`--- End of Page ${i} ---`]);
+                }
             }
 
-            const ws = XLSX.utils.aoa_to_sheet([['Page', 'Content'], ...allData]);
+            if (allData.length === 0) {
+                throw new Error('No data found in PDF');
+            }
+
+            const ws = XLSX.utils.aoa_to_sheet(allData);
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, 'Extracted Data');
             
             const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
             const blob = new Blob([wbout], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-            const filename = getOutputFilename(2, 'Extracted', '.xlsx');
+            const filename = getOutputName(2, 'Extracted', '.xlsx');
             
             if (!downloadFile(blob, filename)) {
-                throw new Error('Failed to download Excel file');
+                throw new Error('Failed to download');
             }
         }
 
@@ -1445,14 +1461,14 @@
             }
 
             if (imageCount === 0) {
-                throw new Error('No pages found in PDF');
+                throw new Error('No pages found');
             }
 
             const zipBlob = await zip.generateAsync({ type: 'blob' });
-            const filename = getOutputFilename(2, 'Images', '.zip');
+            const filename = getOutputName(2, 'Images', '.zip');
             
             if (!downloadFile(zipBlob, filename)) {
-                throw new Error('Failed to download images');
+                throw new Error('Failed to download');
             }
         }
     </script>
