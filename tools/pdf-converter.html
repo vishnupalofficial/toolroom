@@ -1490,59 +1490,141 @@
                 const page = await pdf.getPage(pageNum);
                 const textContent = await page.getTextContent();
                 
-                // Group items by Y position (rows)
-                const rowMap = new Map();
-                
-                textContent.items.forEach(item => {
-                    const y = Math.round(item.transform[5] / 2) * 2; // Group similar Y positions
-                    if (!rowMap.has(y)) {
-                        rowMap.set(y, []);
-                    }
-                    rowMap.get(y).push({
+                // Extract all text items with positions
+                const items = textContent.items
+                    .filter(item => item.str && item.str.trim().length > 0)
+                    .map(item => ({
                         text: item.str.trim(),
-                        x: Math.round(item.transform[4])
-                    });
-                });
+                        x: parseFloat(item.transform[4].toFixed(1)),
+                        y: parseFloat(item.transform[5].toFixed(1)),
+                        width: item.width,
+                        height: item.height
+                    }));
                 
-                // Sort rows by Y position (top to bottom)
-                const sortedRows = Array.from(rowMap.entries())
-                    .sort((a, b) => b[0] - a[0]);
+                if (items.length === 0) continue;
                 
-                // Process each row
-                const sheetData = [];
+                // Group items by rows (Y coordinate with tolerance)
+                const rowTolerance = 3;
+                const rows = [];
                 
-                for (const [y, items] of sortedRows) {
-                    // Sort items in row by X position (left to right)
-                    items.sort((a, b) => a.x - b.x);
+                // Sort by Y coordinate (top to bottom)
+                items.sort((a, b) => b.y - a.y);
+                
+                let currentRow = [items[0]];
+                let currentY = items[0].y;
+                
+                for (let i = 1; i < items.length; i++) {
+                    const item = items[i];
                     
-                    // Detect columns by X position clustering
-                    const columns = [];
-                    let currentCol = [];
-                    let lastX = -1000;
+                    if (Math.abs(item.y - currentY) <= rowTolerance) {
+                        // Same row
+                        currentRow.push(item);
+                    } else {
+                        // New row
+                        currentRow.sort((a, b) => a.x - b.x); // Sort by X within row
+                        rows.push(currentRow);
+                        currentRow = [item];
+                        currentY = item.y;
+                    }
+                }
+                
+                // Add last row
+                if (currentRow.length > 0) {
+                    currentRow.sort((a, b) => a.x - b.x);
+                    rows.push(currentRow);
+                }
+                
+                // Detect column X positions from all rows
+                const xPositions = new Set();
+                for (const row of rows) {
+                    for (const item of row) {
+                        xPositions.add(item.x);
+                    }
+                }
+                
+                // Cluster X positions to find column boundaries
+                const sortedX = Array.from(xPositions).sort((a, b) => a - b);
+                const columns = [];
+                const columnTolerance = 15; // Distance to consider same column
+                
+                if (sortedX.length > 0) {
+                    let currentColumn = [sortedX[0]];
                     
-                    for (const item of items) {
-                        // If X position is far from last, it's a new column
-                        if (item.x - lastX > 10 && currentCol.length > 0) {
-                            columns.push(currentCol.join(' '));
-                            currentCol = [];
+                    for (let i = 1; i < sortedX.length; i++) {
+                        if (sortedX[i] - sortedX[i-1] <= columnTolerance) {
+                            currentColumn.push(sortedX[i]);
+                        } else {
+                            // Calculate average X for this column
+                            const avgX = currentColumn.reduce((a, b) => a + b, 0) / currentColumn.length;
+                            columns.push(avgX);
+                            currentColumn = [sortedX[i]];
                         }
-                        currentCol.push(item.text);
-                        lastX = item.x;
                     }
                     
                     // Add last column
-                    if (currentCol.length > 0) {
-                        columns.push(currentCol.join(' '));
+                    if (currentColumn.length > 0) {
+                        const avgX = currentColumn.reduce((a, b) => a + b, 0) / currentColumn.length;
+                        columns.push(avgX);
+                    }
+                }
+                
+                // Build Excel data
+                const sheetData = [];
+                
+                for (const row of rows) {
+                    const excelRow = new Array(columns.length).fill('');
+                    
+                    for (const item of row) {
+                        // Find closest column
+                        let closestCol = 0;
+                        let minDist = Math.abs(item.x - columns[0]);
+                        
+                        for (let i = 1; i < columns.length; i++) {
+                            const dist = Math.abs(item.x - columns[i]);
+                            if (dist < minDist) {
+                                minDist = dist;
+                                closestCol = i;
+                            }
+                        }
+                        
+                        // Only add to column if within tolerance
+                        if (minDist <= columnTolerance) {
+                            // Append to cell if already has content (with space)
+                            if (excelRow[closestCol]) {
+                                excelRow[closestCol] += ' ' + item.text;
+                            } else {
+                                excelRow[closestCol] = item.text;
+                            }
+                        }
+                    }
+                    
+                    // Trim all cells
+                    for (let i = 0; i < excelRow.length; i++) {
+                        excelRow[i] = excelRow[i].trim();
                     }
                     
                     // Only add non-empty rows
-                    if (columns.some(col => col.trim())) {
-                        sheetData.push(columns);
+                    if (excelRow.some(cell => cell.length > 0)) {
+                        sheetData.push(excelRow);
                     }
                 }
                 
                 if (sheetData.length > 0) {
                     const ws = XLSX.utils.aoa_to_sheet(sheetData);
+                    
+                    // Auto-size columns
+                    const colWidths = [];
+                    for (let i = 0; i < columns.length; i++) {
+                        let maxWidth = 10;
+                        for (const row of sheetData) {
+                            if (row[i] && row[i].length > maxWidth) {
+                                maxWidth = row[i].length;
+                            }
+                        }
+                        colWidths.push({ wch: Math.min(maxWidth + 2, 50) });
+                    }
+                    ws['!cols'] = colWidths;
+                    
                     XLSX.utils.book_append_sheet(wb, ws, `Page ${pageNum}`);
                 }
             }
