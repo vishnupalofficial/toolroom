@@ -5,481 +5,124 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QR Code Generator Pro Max</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #667eea, #764ba2); min-height: 100vh; padding: 20px; }
+        .container { max-width: 1400px; margin: 0 auto; background: white; border-radius: 20px; box-shadow: 0 30px 80px rgba(0,0,0,0.3); }
+        .header { background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 40px; text-align: center; border-radius: 20px 20px 0 0; }
+        .header h1 { font-size: 3em; margin-bottom: 10px; }
+        .content { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; padding: 50px; }
+        @media (max-width: 1200px) { .content { grid-template-columns: 1fr; } }
+        .section h2 { font-size: 1.8em; margin-bottom: 25px; color: #333; }
+        .form-group { margin-bottom: 22px; }
+        label { display: block; margin-bottom: 10px; color: #555; font-weight: 600; }
+        select, input, textarea { width: 100%; padding: 14px; border: 2px solid #e0e0e0; border-radius: 12px; font-size: 1em; font-family: inherit; background: #f8f9fa; transition: all 0.3s; }
+        select:focus, input:focus, textarea:focus { outline: none; border-color: #667eea; background: white; }
+        textarea { min-height: 90px; resize: vertical; }
+        .format-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+        .format-btn { padding: 12px; border: 2px solid #e0e0e0; background: #f8f9fa; border-radius: 10px; cursor: pointer; font-weight: 600; transition: all 0.3s; font-size: 0.9em; }
+        .format-btn:hover { border-color: #667eea; transform: translateY(-2px); }
+        .format-btn.active { background: linear-gradient(135deg, #667eea, #764ba2); color: white; border-color: #667eea; }
+        .gen-btn { width: 100%; padding: 15px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; border-radius: 12px; font-size: 1.15em; font-weight: 700; cursor: pointer; transition: all 0.3s; }
+        .gen-btn:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(102,126,234,0.4); }
+        .preview-section { display: flex; flex-direction: column; align-items: center; }
         
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%, #f093fb 100%);
-            min-height: 100vh;
-            padding: 20px;
-            animation: gradientShift 15s ease infinite;
-            background-size: 200% 200%;
-        }
+        .qr-display { position: relative; padding: 50px; border-radius: 20px; margin-bottom: 25px; min-width: 350px; }
         
-        @keyframes gradientShift {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
+        .frame-1 { background: #000; border: none; }
+        .frame-1::before { content: ''; position: absolute; top: 20px; left: 50%; transform: translateX(-50%); width: 80px; height: 80px; background: linear-gradient(135deg, #ff6b35, #ff8c42); clip-path: polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%); }
+        .frame-1::after { content: 'SCAN ME'; position: absolute; bottom: 15px; left: 20px; color: white; font-weight: 900; font-size: 2em; letter-spacing: 3px; transform: rotate(-2deg); }
         
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            background: rgba(255, 255, 255, 0.98);
-            border-radius: 20px;
-            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.3), 0 0 40px rgba(102, 126, 234, 0.4);
-            overflow: hidden;
-            animation: slideUp 0.6s ease;
-            backdrop-filter: blur(10px);
-        }
+        .frame-2 { background: white; border: 8px solid #000; box-shadow: 12px 12px 0 #667eea, -12px -12px 0 #f093fb; }
         
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
+        .frame-3 { background: linear-gradient(135deg, #ffeaa7, #fdcb6e); border: 6px dashed #ff6348; position: relative; }
+        .frame-3::before { content: '🎯'; position: absolute; top: -30px; left: -30px; font-size: 60px; }
+        .frame-3::after { content: '🎯'; position: absolute; bottom: -30px; right: -30px; font-size: 60px; }
         
-        .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
-            color: white;
-            padding: 40px;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
+        .frame-4 { background: white; border-radius: 50%; border: 10px solid transparent; background-image: linear-gradient(white, white), linear-gradient(135deg, #667eea, #764ba2, #f093fb); background-origin: border-box; background-clip: padding-box, border-box; }
         
-        .header::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            right: -10%;
-            width: 300px;
-            height: 300px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 50%;
-            animation: float 6s ease-in-out infinite;
-        }
+        .frame-5 { background: #000; border: 3px solid #0ff; box-shadow: 0 0 20px #0ff, 0 0 40px #0ff, 0 0 60px #0ff; }
         
-        .header::after {
-            content: '';
-            position: absolute;
-            bottom: -30%;
-            left: -5%;
-            width: 250px;
-            height: 250px;
-            background: rgba(255, 255, 255, 0.08);
-            border-radius: 50%;
-            animation: float 8s ease-in-out infinite reverse;
-        }
+        .frame-6 { background: linear-gradient(135deg, #a8edea, #fed6e3); border: 5px solid #fff; box-shadow: 0 0 0 5px #ff6b9d, 0 0 30px rgba(255,107,157,0.5); border-radius: 25px; }
         
-        @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(20px); }
-        }
+        .frame-7 { background: white; clip-path: polygon(10% 0%, 90% 0%, 100% 10%, 100% 90%, 90% 100%, 10% 100%, 0% 90%, 0% 10%); border: 5px solid #ffd700; box-shadow: 0 0 40px rgba(255,215,0,0.6); }
         
-        .header h1 {
-            font-size: 3em;
-            margin-bottom: 10px;
-            position: relative;
-            z-index: 1;
-            animation: fadeInDown 0.8s ease;
-        }
+        .frame-8 { background: linear-gradient(135deg, #667eea, #764ba2); position: relative; }
+        .frame-8::before { content: 'SCAN'; position: absolute; top: 10px; left: 10px; color: white; font-weight: 900; font-size: 1.5em; writing-mode: vertical-lr; }
+        .frame-8::after { content: 'ME'; position: absolute; bottom: 10px; right: 10px; color: white; font-weight: 900; font-size: 1.5em; writing-mode: vertical-lr; }
         
-        .header p {
-            font-size: 1.2em;
-            opacity: 0.95;
-            position: relative;
-            z-index: 1;
-            animation: fadeInUp 0.8s ease 0.2s both;
-        }
+        .frame-9 { background: repeating-linear-gradient(45deg, #fff, #fff 10px, #ffeeee 10px, #ffeeee 20px); border: 8px ridge #ff6b6b; }
         
-        @keyframes fadeInDown {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        .frame-10 { background: #f0f0f0; border: none; box-shadow: 0 30px 60px rgba(0,0,0,0.3), inset 0 0 50px rgba(0,0,0,0.1); border-radius: 30px; }
         
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        .frame-11 { background: linear-gradient(135deg, #1a1a1a, #2d2d2d); border: 3px solid #00ff00; box-shadow: 0 0 20px #00ff00, 0 0 40px #00ff00, inset 0 0 20px rgba(0,255,0,0.2); }
         
-        .content {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 40px;
-            padding: 50px;
-        }
+        .frame-12 { background: white; position: relative; border: 6px solid #333; }
+        .frame-12::before { content: ''; position: absolute; top: -20px; left: -20px; right: -20px; bottom: -20px; background: repeating-conic-gradient(#667eea 0% 25%, transparent 0% 50%); z-index: -1; }
         
-        @media (max-width: 1200px) {
-            .content {
-                grid-template-columns: 1fr;
-                gap: 30px;
-            }
-        }
+        .frame-13 { background: linear-gradient(135deg, #fff5f5, #ffe0e0); border: 5px solid #ff1744; box-shadow: 0 0 0 3px #fff, 0 0 0 6px #ff1744; border-radius: 20px; }
         
-        .section {
-            animation: fadeIn 0.8s ease 0.3s both;
-        }
+        .frame-14 { background: #000; position: relative; overflow: hidden; }
+        .frame-14::before { content: '👁️'; position: absolute; top: -25px; left: 50%; transform: translateX(-50%); font-size: 50px; }
+        .frame-14::after { content: '🔥'; position: absolute; bottom: -25px; left: 50%; transform: translateX(-50%); font-size: 50px; }
         
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
+        .frame-15 { background: white; border: 2px solid #ddd; box-shadow: 0 20px 60px rgba(0,0,0,0.15); border-radius: 15px; }
         
-        .section h2 {
-            font-size: 1.8em;
-            margin-bottom: 25px;
-            color: #333;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
+        .frame-16 { background: linear-gradient(135deg, #ffd89b, #19547b); border: 8px double #ffd700; box-shadow: 0 0 50px rgba(255,215,0,0.5), inset 0 0 30px rgba(0,0,0,0.3); }
         
-        .form-group {
-            margin-bottom: 22px;
-            animation: slideInLeft 0.6s ease backwards;
-        }
+        .frame-17 { background: linear-gradient(135deg, #e0ffe0, #c8f0c8); border: 6px solid #4caf50; border-radius: 25px; box-shadow: 0 10px 40px rgba(76,175,80,0.4); }
+        .frame-17::before { content: '🌿'; position: absolute; top: -25px; left: -25px; font-size: 50px; }
+        .frame-17::after { content: '🌿'; position: absolute; bottom: -25px; right: -25px; font-size: 50px; }
         
-        .form-group:nth-child(1) { animation-delay: 0.1s; }
-        .form-group:nth-child(2) { animation-delay: 0.2s; }
-        .form-group:nth-child(3) { animation-delay: 0.3s; }
-        .form-group:nth-child(4) { animation-delay: 0.4s; }
-        .form-group:nth-child(5) { animation-delay: 0.5s; }
-        .form-group:nth-child(6) { animation-delay: 0.6s; }
+        .frame-18 { background: linear-gradient(135deg, #e0f7ff, #b3e5fc); border: 5px solid #03a9f4; border-radius: 20px; box-shadow: 0 10px 40px rgba(3,169,244,0.5); }
+        .frame-18::before { content: '🌊'; position: absolute; top: -25px; left: 50%; transform: translateX(-50%); font-size: 50px; }
         
-        @keyframes slideInLeft {
-            from { opacity: 0; transform: translateX(-20px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
+        .frame-19 { background: linear-gradient(135deg, #fff3e0, #ffe0b2); border: 6px solid #ff5722; box-shadow: 0 0 50px rgba(255,87,34,0.7), inset 0 0 30px rgba(255,87,34,0.2); }
+        .frame-19::before { content: '🔥'; position: absolute; top: -25px; left: -25px; font-size: 50px; }
         
-        label {
-            display: block;
-            margin-bottom: 10px;
-            color: #555;
-            font-weight: 600;
-            font-size: 1.05em;
-        }
+        .frame-20 { background: linear-gradient(135deg, #e3f2fd, #bbdefb); border: 6px solid #2196f3; border-radius: 20px; box-shadow: 0 10px 50px rgba(33,150,243,0.6), inset 0 0 30px rgba(33,150,243,0.2); }
+        .frame-20::before { content: '❄️'; position: absolute; top: -25px; left: -25px; font-size: 50px; }
+        .frame-20::after { content: '❄️'; position: absolute; bottom: -25px; right: -25px; font-size: 50px; }
         
-        select, input[type="text"], input[type="url"], input[type="email"], input[type="number"], input[type="color"], textarea {
-            width: 100%;
-            padding: 14px 16px;
-            border: 2px solid #e0e0e0;
-            border-radius: 12px;
-            font-size: 1em;
-            transition: all 0.3s ease;
-            font-family: inherit;
-            background: #f8f9fa;
-        }
-        
-        select:focus, input:focus, textarea:focus {
-            outline: none;
-            border-color: #667eea;
-            background: white;
-            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
-            transform: translateY(-2px);
-        }
-        
-        select:hover, input:hover, textarea:hover {
-            border-color: #764ba2;
-        }
-        
-        textarea {
-            resize: vertical;
-            min-height: 90px;
-        }
-        
-        .color-picker-group {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-        
-        input[type="color"] {
-            padding: 8px;
-            height: 55px;
-            cursor: pointer;
-            border-radius: 12px;
-            transition: all 0.3s ease;
-        }
-        
-        input[type="color"]:hover {
-            transform: scale(1.05);
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
-        }
-        
-        input[type="file"] {
-            padding: 12px;
-            border: 2px dashed #667eea;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            background: #f8f9fa;
-        }
-        
-        input[type="file"]:hover {
-            background: #f0f3ff;
-            border-color: #764ba2;
-        }
-        
-        button {
-            width: 100%;
-            padding: 15px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-size: 1.15em;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-            letter-spacing: 0.5px;
-        }
-        
-        button::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: rgba(255, 255, 255, 0.2);
-            transition: left 0.3s ease;
-            z-index: 1;
-        }
-        
-        button:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
-        }
-        
-        button:hover::before {
-            left: 100%;
-        }
-        
-        button:active {
-            transform: translateY(-1px);
-        }
-        
-        .preview-section {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            animation: slideInRight 0.6s ease 0.4s both;
-        }
-        
-        @keyframes slideInRight {
-            from { opacity: 0; transform: translateX(20px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-        
-        .qr-wrapper {
-            background: linear-gradient(135deg, #f5f7ff 0%, #f0f3ff 100%);
-            padding: 30px;
-            border-radius: 16px;
-            margin-bottom: 25px;
-            transition: all 0.3s ease;
-            box-shadow: 0 10px 40px rgba(102, 126, 234, 0.15);
-        }
-        
-        .qr-wrapper:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 50px rgba(102, 126, 234, 0.25);
-        }
-        
-        .qr-label {
-            text-align: center;
-            margin-bottom: 20px;
-            font-size: 1.3em;
-            font-weight: 700;
-            color: #333;
-            animation: fadeIn 0.6s ease;
-        }
-        
-        #qrContainer {
-            background: white;
-            padding: 20px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 2px solid #e0e0e0;
-            transition: all 0.3s ease;
-            position: relative;
-        }
-        
-        #qrContainer canvas {
-            max-width: 100%;
-            max-height: 100%;
-            filter: drop-shadow(0 5px 15px rgba(0, 0, 0, 0.1));
-        }
-        
-        #placeholder {
-            text-align: center;
-            color: #999;
-            padding: 50px;
-            animation: bounce 2s ease-in-out infinite;
-        }
-        
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
-        
-        #placeholder p:first-child {
-            font-size: 3.5em;
-            margin-bottom: 15px;
-        }
-        
-        .button-group {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            width: 100%;
-        }
-        
-        .download-btn, .clear-btn {
-            padding: 12px;
-            border: none;
-            border-radius: 12px;
-            cursor: pointer;
-            font-weight: 700;
-            transition: all 0.3s ease;
-            font-size: 1.05em;
-            letter-spacing: 0.3px;
-        }
-        
-        .download-btn {
-            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
-            color: white;
-        }
-        
-        .download-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(76, 175, 80, 0.3);
-        }
-        
-        .clear-btn {
-            background: linear-gradient(135deg, #f44336 0%, #da190b 100%);
-            color: white;
-        }
-        
-        .clear-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(244, 67, 54, 0.3);
-        }
-        
-        .hidden {
-            display: none;
-        }
-        
-        .option-group {
-            background: linear-gradient(135deg, #f5f7ff 0%, #f0f3ff 100%);
-            padding: 22px;
-            border-radius: 12px;
-            margin-bottom: 22px;
-            border-left: 5px solid #667eea;
-            animation: slideInLeft 0.6s ease 0.7s backwards;
-        }
-        
-        .option-group h3 {
-            margin-bottom: 18px;
-            font-size: 1.2em;
-            color: #333;
-            display: flex;
-            align-items: center;
-        }
-        
-        .option-group h3::before {
-            content: '⚙️';
-            margin-right: 10px;
-        }
-        
-        .size-slider {
-            width: 100%;
-            height: 7px;
-            cursor: pointer;
-            background: linear-gradient(to right, #667eea, #764ba2);
-            border-radius: 10px;
-            -webkit-appearance: none;
-            appearance: none;
-        }
-        
-        .size-slider::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 22px;
-            height: 22px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            cursor: pointer;
-            box-shadow: 0 3px 10px rgba(102, 126, 234, 0.4);
-            transition: all 0.3s ease;
-        }
-        
-        .size-slider::-webkit-slider-thumb:hover {
-            transform: scale(1.2);
-            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.6);
-        }
-        
-        .size-slider::-moz-range-thumb {
-            width: 22px;
-            height: 22px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            cursor: pointer;
-            border: none;
-            box-shadow: 0 3px 10px rgba(102, 126, 234, 0.4);
-            transition: all 0.3s ease;
-        }
-        
-        .size-display {
-            text-align: center;
-            margin-top: 12px;
-            color: #667eea;
-            font-weight: 700;
-            font-size: 1.1em;
-            animation: fadeIn 0.6s ease;
-        }
-        
-        .upi-amount-note {
-            background: rgba(102, 126, 234, 0.1);
-            border-left: 4px solid #667eea;
-            padding: 12px;
-            border-radius: 8px;
-            font-size: 0.95em;
-            color: #555;
-            margin-top: 8px;
-        }
-        
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.8; }
-        }
-        
-        button:active {
-            animation: pulse 0.4s ease;
-        }
+        #qrCanvas { background: white; padding: 15px; border-radius: 10px; display: flex; justify-content: center; align-items: center; }
+        #qrCanvas canvas { display: block !important; }
+        .qr-title { text-align: center; margin-bottom: 20px; font-size: 1.5em; font-weight: 700; color: #333; }
+        .button-group { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; }
+        .dl-btn, .clr-btn { padding: 14px; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; transition: all 0.3s; font-size: 1.05em; }
+        .dl-btn { background: linear-gradient(135deg, #4CAF50, #45a049); color: white; }
+        .dl-btn:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(76,175,80,0.4); }
+        .clr-btn { background: linear-gradient(135deg, #f44336, #da190b); color: white; }
+        .clr-btn:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(244,67,54,0.4); }
+        .hidden { display: none; }
+        .option-group { background: #f5f7ff; padding: 22px; border-radius: 12px; margin-bottom: 22px; border-left: 5px solid #667eea; }
+        .option-group h3 { margin-bottom: 15px; font-size: 1.1em; color: #333; }
+        #placeholder { text-align: center; color: #999; padding: 50px; font-size: 3em; }
+        .pro-feature { background: linear-gradient(135deg, #ffd89b, #19547b); padding: 20px; border-radius: 12px; margin-bottom: 22px; color: white; }
+        .pro-feature h3 { margin-bottom: 10px; }
+        .pro-feature label { color: white; }
+        .batch-input { display: grid; grid-template-columns: 1fr auto; gap: 10px; margin-top: 10px; }
+        .batch-input input { flex: 1; }
+        .batch-input button { padding: 10px 20px; background: white; color: #19547b; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; }
+        .history-item { background: white; padding: 10px; border-radius: 8px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; font-size: 0.9em; }
+        .history-item button { padding: 5px 15px; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 0.85em; }
+        .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 10px; }
+        .stat-box { background: rgba(255,255,255,0.2); padding: 10px; border-radius: 8px; text-align: center; }
+        .stat-box .num { font-size: 1.5em; font-weight: 700; }
+        .stat-box .label { font-size: 0.8em; opacity: 0.9; }
+        .toggle-switch { position: relative; display: inline-block; width: 50px; height: 24px; }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 24px; }
+        .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: #4CAF50; }
+        input:checked + .slider:before { transform: translateX(26px); }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
             <h1>🎯 QR Code Generator Pro Max</h1>
-            <p>Create Professional QR Codes with Ultimate Customization</p>
+            <p>Create Professional QR Codes with 20 Trending Styles</p>
         </div>
         
         <div class="content">
@@ -487,305 +130,452 @@
                 <h2>Configuration</h2>
                 
                 <div class="form-group">
-                    <label for="qrType">QR Code Type</label>
+                    <label>QR Code Type</label>
                     <select id="qrType" onchange="updateInputs()">
-                        <option value="url">🌐 URL</option>
-                        <option value="text">📝 Text</option>
-                        <option value="wifi">📶 WiFi</option>
-                        <option value="email">✉️ Email</option>
-                        <option value="phone">☎️ Phone</option>
+                        <option value="url">🌐 URL/Website</option>
+                        <option value="wifi">📶 WiFi Network</option>
+                        <option value="email">✉️ Email Address</option>
+                        <option value="phone">☎️ Phone Number</option>
                         <option value="upi">💰 UPI Payment</option>
+                        <option value="sms">💬 SMS Message</option>
+                        <option value="whatsapp">📱 WhatsApp</option>
+                        <option value="location">📍 Location</option>
+                        <option value="vcard">👤 Contact Card</option>
+                        <option value="event">📅 Calendar Event</option>
                     </select>
                 </div>
                 
                 <div id="urlInput" class="form-group">
-                    <label for="urlValue">Enter URL</label>
+                    <label>Enter URL</label>
                     <input type="url" id="urlValue" placeholder="https://example.com">
                 </div>
                 
-                <div id="textInput" class="form-group hidden">
-                    <label for="textValue">Enter Text</label>
-                    <textarea id="textValue" placeholder="Enter your text here..."></textarea>
-                </div>
-                
                 <div id="emailInput" class="form-group hidden">
-                    <label for="emailValue">Email Address</label>
+                    <label>Email</label>
                     <input type="email" id="emailValue" placeholder="example@email.com">
                 </div>
                 
                 <div id="phoneInput" class="form-group hidden">
-                    <label for="phoneValue">Phone Number</label>
-                    <input type="text" id="phoneValue" placeholder="+1234567890">
+                    <label>Phone</label>
+                    <input type="text" id="phoneValue" placeholder="+911234567890">
                 </div>
                 
                 <div id="upiInputs" class="hidden">
                     <div class="form-group">
-                        <label for="upiValue">UPI ID</label>
-                        <input type="text" id="upiValue" placeholder="yourname@bankname">
+                        <label>UPI ID</label>
+                        <input type="text" id="upiValue" placeholder="name@bank">
                     </div>
                     <div class="form-group">
-                        <label for="upiAmount">Amount (Optional - Leave empty for no fixed amount)</label>
-                        <input type="number" id="upiAmount" placeholder="Enter amount or leave blank" min="0" step="0.01">
-                        <div class="upi-amount-note">💡 If you leave amount blank, payer can enter any amount</div>
+                        <label>Amount</label>
+                        <input type="text" id="upiAmount" placeholder="5000">
                     </div>
                 </div>
                 
                 <div id="wifiInputs" class="hidden">
                     <div class="form-group">
-                        <label for="ssid">WiFi Network (SSID)</label>
-                        <input type="text" id="ssid" placeholder="Network name">
+                        <label>WiFi Network</label>
+                        <input type="text" id="ssid" placeholder="Network Name">
                     </div>
                     <div class="form-group">
-                        <label for="password">Password</label>
-                        <input type="text" id="password" placeholder="WiFi password">
+                        <label>Password</label>
+                        <input type="text" id="password" placeholder="Password">
+                    </div>
+                </div>
+                
+                <div id="smsInputs" class="hidden">
+                    <div class="form-group">
+                        <label>Phone Number</label>
+                        <input type="text" id="smsPhone" placeholder="+911234567890">
                     </div>
                     <div class="form-group">
-                        <label for="security">Security Type</label>
-                        <select id="security">
-                            <option value="WPA">WPA/WPA2</option>
-                            <option value="WEP">WEP</option>
-                            <option value="nopass">Open</option>
-                        </select>
+                        <label>Message</label>
+                        <textarea id="smsMessage" placeholder="Your message"></textarea>
+                    </div>
+                </div>
+                
+                <div id="whatsappInputs" class="hidden">
+                    <div class="form-group">
+                        <label>WhatsApp Number</label>
+                        <input type="text" id="whatsappPhone" placeholder="911234567890">
+                    </div>
+                    <div class="form-group">
+                        <label>Message</label>
+                        <textarea id="whatsappMessage" placeholder="Hello!"></textarea>
+                    </div>
+                </div>
+                
+                <div id="locationInputs" class="hidden">
+                    <div class="form-group">
+                        <label>Latitude</label>
+                        <input type="text" id="latitude" placeholder="27.1767">
+                    </div>
+                    <div class="form-group">
+                        <label>Longitude</label>
+                        <input type="text" id="longitude" placeholder="78.0081">
+                    </div>
+                </div>
+                
+                <div id="vcardInputs" class="hidden">
+                    <div class="form-group">
+                        <label>Full Name</label>
+                        <input type="text" id="vcardName" placeholder="John Doe">
+                    </div>
+                    <div class="form-group">
+                        <label>Phone</label>
+                        <input type="text" id="vcardPhone" placeholder="+911234567890">
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="vcardEmail" placeholder="john@email.com">
+                    </div>
+                </div>
+                
+                <div id="eventInputs" class="hidden">
+                    <div class="form-group">
+                        <label>Event Name</label>
+                        <input type="text" id="eventName" placeholder="Meeting">
+                    </div>
+                    <div class="form-group">
+                        <label>Location</label>
+                        <input type="text" id="eventLocation" placeholder="Office">
+                    </div>
+                    <div class="form-group">
+                        <label>Date & Time</label>
+                        <input type="datetime-local" id="eventDateTime">
                     </div>
                 </div>
                 
                 <div class="form-group">
-                    <label for="labelText">Label Above QR (Optional)</label>
-                    <input type="text" id="labelText" placeholder="e.g., Scan to Connect, Pay Now, etc.">
+                    <label>Label Text (Optional)</label>
+                    <input type="text" id="labelText" placeholder="Scan Me">
                 </div>
                 
                 <div class="option-group">
-                    <h3>Visual Customization</h3>
-                    
-                    <div class="color-picker-group">
-                        <div class="form-group" style="margin-bottom: 0;">
-                            <label for="darkColor">Dark Color</label>
-                            <input type="color" id="darkColor" value="#000000">
+                    <h3>🎨 Frame Styles (20 Unique)</h3>
+                    <div class="format-grid">
+                        <button type="button" class="format-btn active" onclick="selectFormat(1)">🔥 Halloween</button>
+                        <button type="button" class="format-btn" onclick="selectFormat(2)">📦 3D Shadow</button>
+                        <button type="button" class="format-btn" onclick="selectFormat(3)">🎯 Target</button>
+                        <button type="button" class="format-btn" onclick="selectFormat(4)">🌈 Rainbow</button>
+                        <button type="button" class="format-btn" onclick="selectFormat(5)">💫 Neon</button>
+                        <button type="button" class="format-btn" onclick="selectFormat(6)">💗 Pastel</button>
+                        <button type="button" class="format-btn" onclick="selectFormat(7)">💎 Diamond</button>
+                        <button type="button" class="format-btn" onclick="selectFormat(8)">📱 Vertical</button>
+                        <button type="button" class="format-btn" onclick="selectFormat(9)">🧸 Candy</button>
+                        <button type="button" class="format-btn" onclick="selectFormat(10)">🎭 Neomorph</button>
+                        <button type="button" class="format-btn" onclick="selectFormat(11)">⚡ Matrix</button>
+                        <button type="button" class="format-btn" onclick="selectFormat(12)">🎪 Carnival</button>
+                        <button type="button" class="format-btn" onclick="selectFormat(13)">❤️ Heart</button>
+                        <button type="button" class="format-btn" onclick="selectFormat(14)">👁️ Evil Eye</button>
+                        <button type="button" class="format-btn" onclick="selectFormat(15)">⬜ Minimal</button>
+                        <button type="button" class="format-btn" onclick="selectFormat(16)">👑 Luxury</button>
+                        <button type="button" class="format-btn" onclick="selectFormat(17)">🌿 Eco</button>
+                        <button type="button" class="format-btn" onclick="selectFormat(18)">🌊 Ocean</button>
+                        <button type="button" class="format-btn" onclick="selectFormat(19)">🔥 Fire</button>
+                        <button type="button" class="format-btn" onclick="selectFormat(20)">❄️ Ice</button>
+                    </div>
+                </div>
+                
+                <div class="option-group">
+                    <h3>⚙️ Customization</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                        <div>
+                            <label>QR Dark Color</label>
+                            <input type="color" id="darkColor" value="#000000" style="height: 50px; cursor: pointer;">
                         </div>
-                        <div class="form-group" style="margin-bottom: 0;">
-                            <label for="lightColor">Light Color</label>
-                            <input type="color" id="lightColor" value="#ffffff">
+                        <div>
+                            <label>QR Light Color</label>
+                            <input type="color" id="lightColor" value="#ffffff" style="height: 50px; cursor: pointer;">
                         </div>
                     </div>
-                    
                     <div class="form-group">
-                        <label for="sizeSlider">QR Code Size (100-500px)</label>
-                        <input type="range" id="sizeSlider" min="100" max="500" value="300" class="size-slider" oninput="updateSizeDisplay()">
-                        <div class="size-display" id="sizeDisplay">300px</div>
+                        <label>QR Size: <span id="sizeDisplay">300px</span></label>
+                        <input type="range" id="sizeSlider" min="150" max="400" value="300" oninput="updateSize()" style="width: 100%;">
+                    </div>
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; justify-content: space-between;">
+                            <span>High Quality Download</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="highQuality" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </label>
                     </div>
                 </div>
                 
                 <div class="form-group">
-                    <label for="logoFile">Upload Logo (Optional)</label>
+                    <label>Upload Logo (Optional)</label>
                     <input type="file" id="logoFile" accept="image/*">
-                    <small style="color: #888; display: block; margin-top: 8px;">🎨 Recommended: Square image, max 100x100px</small>
                 </div>
                 
-                <button onclick="generateQR()">✨ Generate QR Code</button>
+                <button class="gen-btn" onclick="generateQR()">✨ Generate QR Code</button>
+                
+                <div class="pro-feature">
+                    <h3>📊 Statistics</h3>
+                    <div class="stats">
+                        <div class="stat-box">
+                            <div class="num" id="totalQRs">0</div>
+                            <div class="label">Total QRs</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="num" id="todayQRs">0</div>
+                            <div class="label">Today</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="num" id="favoriteFrame">-</div>
+                            <div class="label">Fav Frame</div>
+                        </div>
+                    </div>
+                </div>
             </div>
             
             <div class="section preview-section">
                 <h2>Preview</h2>
-                <div class="qr-wrapper" style="display: none;" id="qrWrapper">
-                    <div class="qr-label" id="qrLabel"></div>
-                    <div id="qrContainer">
-                        <canvas id="qrCanvas"></canvas>
-                    </div>
+                <div id="qrDisplay" class="qr-display frame-1" style="display: none;">
+                    <div class="qr-title" id="qrLabel"></div>
+                    <div id="qrCanvas"></div>
                 </div>
-                <div id="placeholder">
-                    <p>📱</p>
-                    <p style="font-size: 1.1em;">Your QR code will appear here</p>
+                <div id="placeholder">📱<br><small style="font-size: 0.4em;">Your QR will appear here</small></div>
+                <div class="button-group" id="buttonGroup" style="display: none;">
+                    <button class="dl-btn" onclick="downloadQR()">⬇️ Download</button>
+                    <button class="clr-btn" onclick="clearQR()">🗑️ Clear</button>
                 </div>
-                <div class="button-group" id="buttonGroup" style="display: none; width: 100%; margin-top: 20px;">
-                    <button class="download-btn" onclick="downloadQR()">⬇️ Download</button>
-                    <button class="clear-btn" onclick="clearQR()">🗑️ Clear</button>
+                
+                <div id="historySection" style="margin-top: 30px; display: none;">
+                    <h3 style="margin-bottom: 15px; color: #333;">📜 Recent History</h3>
+                    <div id="historyList"></div>
                 </div>
             </div>
         </div>
     </div>
     
     <script>
-        let logoImage = null;
+        let logo = null;
+        let format = 1;
+        let currentCanvas = null;
+        let stats = JSON.parse(localStorage.getItem('qrStats') || '{"total":0,"today":0,"frames":{}}');
+        let history = JSON.parse(localStorage.getItem('qrHistory') || '[]');
+        
+        function updateStats() {
+            document.getElementById('totalQRs').textContent = stats.total;
+            document.getElementById('todayQRs').textContent = stats.today;
+            const favFrame = Object.entries(stats.frames).sort((a,b) => b[1] - a[1])[0];
+            document.getElementById('favoriteFrame').textContent = favFrame ? favFrame[0] : '-';
+        }
+        
+        function saveStats() {
+            stats.total++;
+            stats.today++;
+            stats.frames[format] = (stats.frames[format] || 0) + 1;
+            localStorage.setItem('qrStats', JSON.stringify(stats));
+            updateStats();
+        }
+        
+        function addToHistory(type, data) {
+            history.unshift({type, data, date: new Date().toLocaleString(), frame: format});
+            if(history.length > 5) history.pop();
+            localStorage.setItem('qrHistory', JSON.stringify(history));
+            updateHistory();
+        }
+        
+        function updateHistory() {
+            const list = document.getElementById('historyList');
+            if(history.length > 0) {
+                document.getElementById('historySection').style.display = 'block';
+                list.innerHTML = history.map((h, i) => `
+                    <div class="history-item">
+                        <div><strong>${h.type}</strong><br><small>${h.date}</small></div>
+                        <button onclick="reloadHistory(${i})">Reload</button>
+                    </div>
+                `).join('');
+            }
+        }
+        
+        function reloadHistory(i) {
+            const h = history[i];
+            document.getElementById('qrType').value = h.type;
+            updateInputs();
+            if(h.type === 'url') document.getElementById('urlValue').value = h.data;
+            selectFormat(h.frame);
+            generateQR();
+        }
         
         function updateInputs() {
-            const type = document.getElementById('qrType').value;
-            document.getElementById('urlInput').classList.add('hidden');
-            document.getElementById('textInput').classList.add('hidden');
-            document.getElementById('emailInput').classList.add('hidden');
-            document.getElementById('phoneInput').classList.add('hidden');
-            document.getElementById('upiInputs').classList.add('hidden');
-            document.getElementById('wifiInputs').classList.add('hidden');
-            
-            if (type === 'url') document.getElementById('urlInput').classList.remove('hidden');
-            else if (type === 'text') document.getElementById('textInput').classList.remove('hidden');
-            else if (type === 'email') document.getElementById('emailInput').classList.remove('hidden');
-            else if (type === 'phone') document.getElementById('phoneInput').classList.remove('hidden');
-            else if (type === 'upi') document.getElementById('upiInputs').classList.remove('hidden');
-            else if (type === 'wifi') document.getElementById('wifiInputs').classList.remove('hidden');
+            const t = document.getElementById('qrType').value;
+            ['urlInput','emailInput','phoneInput','upiInputs','wifiInputs','smsInputs','whatsappInputs','locationInputs','vcardInputs','eventInputs'].forEach(id => {
+                document.getElementById(id).classList.add('hidden');
+            });
+            const mapping = {url:'urlInput',email:'emailInput',phone:'phoneInput',upi:'upiInputs',wifi:'wifiInputs',sms:'smsInputs',whatsapp:'whatsappInputs',location:'locationInputs',vcard:'vcardInputs',event:'eventInputs'};
+            if(mapping[t]) document.getElementById(mapping[t]).classList.remove('hidden');
         }
         
-        function updateSizeDisplay() {
-            const size = document.getElementById('sizeSlider').value;
-            document.getElementById('sizeDisplay').textContent = size + 'px';
+        function updateSize() {
+            document.getElementById('sizeDisplay').textContent = document.getElementById('sizeSlider').value + 'px';
         }
         
-        document.getElementById('logoFile').addEventListener('change', function(e) {
+        function selectFormat(f) {
+            format = f;
+            document.querySelectorAll('.format-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.format-btn')[f-1].classList.add('active');
+        }
+        
+        document.getElementById('logoFile').onchange = function(e) {
             const file = e.target.files[0];
-            if (file) {
+            if(file) {
                 const reader = new FileReader();
-                reader.onload = function(event) {
-                    logoImage = event.target.result;
-                };
+                reader.onload = ev => { logo = ev.target.result; };
                 reader.readAsDataURL(file);
             }
-        });
+        };
         
-        function getQRData() {
-            const type = document.getElementById('qrType').value;
-            
-            switch(type) {
-                case 'url':
-                    return document.getElementById('urlValue').value || 'https://example.com';
-                case 'text':
-                    return document.getElementById('textValue').value || 'Sample Text';
-                case 'email':
-                    return 'mailto:' + (document.getElementById('emailValue').value || 'example@email.com');
-                case 'phone':
-                    return 'tel:' + (document.getElementById('phoneValue').value || '+1234567890');
-                case 'upi':
-                    const upiId = document.getElementById('upiValue').value || 'user@bank';
-                    const amount = document.getElementById('upiAmount').value;
-                    if (amount) {
-                        return 'upi://pay?pa=' + upiId + '&am=' + amount;
-                    }
-                    return 'upi://pay?pa=' + upiId;
-                case 'wifi':
-                    const ssid = document.getElementById('ssid').value || 'Network';
-                    const password = document.getElementById('password').value || '';
-                    const security = document.getElementById('security').value;
-                    return `WIFI:T:${security};S:${ssid};P:${password};;`;
+        function getData() {
+            const t = document.getElementById('qrType').value;
+            if(t==='url') return document.getElementById('urlValue').value || 'https://example.com';
+            if(t==='email') return 'mailto:' + (document.getElementById('emailValue').value || 'test@test.com');
+            if(t==='phone') return 'tel:' + (document.getElementById('phoneValue').value || '+123');
+            if(t==='upi') {
+                const id = document.getElementById('upiValue').value || 'user@bank';
+                const amt = document.getElementById('upiAmount').value;
+                return amt ? 'upi://pay?pa='+id+'&am='+amt : 'upi://pay?pa='+id;
             }
+            if(t==='wifi') return 'WIFI:T:WPA;S:'+(document.getElementById('ssid').value||'WiFi')+';P:'+(document.getElementById('password').value||'')+';;';
+            if(t==='sms') return 'SMSTO:'+(document.getElementById('smsPhone').value||'+123')+':'+(document.getElementById('smsMessage').value||'');
+            if(t==='whatsapp') return 'https://wa.me/'+(document.getElementById('whatsappPhone').value||'123')+'?text='+encodeURIComponent(document.getElementById('whatsappMessage').value||'');
+            if(t==='location') return 'geo:'+(document.getElementById('latitude').value||'0')+','+(document.getElementById('longitude').value||'0');
+            if(t==='vcard') return 'BEGIN:VCARD\nVERSION:3.0\nFN:'+(document.getElementById('vcardName').value||'Name')+'\nTEL:'+(document.getElementById('vcardPhone').value||'')+'\nEMAIL:'+(document.getElementById('vcardEmail').value||'')+'\nEND:VCARD';
+            if(t==='event') return 'BEGIN:VEVENT\nSUMMARY:'+(document.getElementById('eventName').value||'Event')+'\nLOCATION:'+(document.getElementById('eventLocation').value||'')+'\nDTSTART:'+(document.getElementById('eventDateTime').value||'').replace(/[-:]/g,'')+'00\nEND:VEVENT';
         }
         
         function generateQR() {
             const size = parseInt(document.getElementById('sizeSlider').value);
-            const darkColor = document.getElementById('darkColor').value;
-            const lightColor = document.getElementById('lightColor').value;
-            const labelText = document.getElementById('labelText').value;
+            const dark = document.getElementById('darkColor').value;
+            const light = document.getElementById('lightColor').value;
+            const label = document.getElementById('labelText').value;
             
             const canvas = document.getElementById('qrCanvas');
-            canvas.width = size;
-            canvas.height = size;
+            canvas.innerHTML = '';
             
-            const ctx = canvas.getContext('2d');
-            ctx.clearRect(0, 0, size, size);
+            const display = document.getElementById('qrDisplay');
+            display.className = 'qr-display frame-' + format;
             
-            const tempDiv = document.createElement('div');
-            tempDiv.style.position = 'absolute';
-            tempDiv.style.left = '-9999px';
-            document.body.appendChild(tempDiv);
+            const tmp = document.createElement('div');
+            tmp.style.position = 'absolute';
+            tmp.style.left = '-9999px';
+            document.body.appendChild(tmp);
             
-            const qrCode = new QRCode(tempDiv, {
-                text: getQRData(),
+            new QRCode(tmp, {
+                text: getData(),
                 width: size,
                 height: size,
-                colorDark: darkColor,
-                colorLight: lightColor,
+                colorDark: dark,
+                colorLight: light,
                 correctLevel: QRCode.CorrectLevel.H
             });
             
             setTimeout(() => {
-                const tempCanvas = tempDiv.querySelector('canvas');
-                if (tempCanvas) {
-                    ctx.drawImage(tempCanvas, 0, 0, size, size);
+                const tc = tmp.querySelector('canvas');
+                if(tc) {
+                    const c = document.createElement('canvas');
+                    c.width = size;
+                    c.height = size;
+                    const ctx = c.getContext('2d');
+                    ctx.drawImage(tc, 0, 0);
+                    
+                    if(logo) {
+                        const img = new Image();
+                        img.onload = () => {
+                            const ls = size * 0.18;
+                            const x = (size - ls) / 2;
+                            const y = (size - ls) / 2;
+                            ctx.fillStyle = light;
+                            ctx.fillRect(x-5, y-5, ls+10, ls+10);
+                            ctx.drawImage(img, x, y, ls, ls);
+                        };
+                        img.src = logo;
+                    }
+                    
+                    currentCanvas = c;
+                    canvas.appendChild(c);
                 }
+                document.body.removeChild(tmp);
                 
-                if (logoImage) {
-                    addLogo(size);
-                }
-                
-                document.body.removeChild(tempDiv);
-                
-                if (labelText) {
-                    document.getElementById('qrLabel').textContent = labelText;
-                } else {
-                    document.getElementById('qrLabel').textContent = '';
-                }
-                
-                document.getElementById('qrWrapper').style.display = 'block';
-                document.getElementById('placeholder').classList.add('hidden');
+                document.getElementById('qrLabel').textContent = label;
+                display.style.display = 'block';
+                document.getElementById('placeholder').style.display = 'none';
                 document.getElementById('buttonGroup').style.display = 'grid';
-            }, 100);
-        }
-        
-        function addLogo(size) {
-            const canvas = document.getElementById('qrCanvas');
-            const ctx = canvas.getContext('2d');
-            const img = new Image();
-            
-            img.onload = function() {
-                const logoSize = Math.min(size * 0.25, 80);
-                const x = (size - logoSize) / 2;
-                const y = (size - logoSize) / 2;
                 
-                ctx.fillStyle = document.getElementById('lightColor').value;
-                ctx.fillRect(x - 5, y - 5, logoSize + 10, logoSize + 10);
-                ctx.drawImage(img, x, y, logoSize, logoSize);
-            };
-            
-            img.src = logoImage;
+                saveStats();
+                addToHistory(document.getElementById('qrType').value, getData());
+            }, 150);
         }
         
         function downloadQR() {
-            const canvas = document.getElementById('qrCanvas');
-            const labelText = document.getElementById('labelText').value;
+            if(!currentCanvas) { alert('Please generate QR code first!'); return; }
             
-            if (labelText) {
-                const tempCanvas = document.createElement('canvas');
-                tempCanvas.width = canvas.width;
-                tempCanvas.height = canvas.height + 80;
-                const tempCtx = tempCanvas.getContext('2d');
-                
-                tempCtx.fillStyle = '#ffffff';
-                tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
-                
-                tempCtx.fillStyle = '#333333';
-                tempCtx.font = 'bold 20px Arial';
-                tempCtx.textAlign = 'center';
-                tempCtx.fillText(labelText, tempCanvas.width / 2, 40);
-                
-                tempCtx.drawImage(canvas, 0, 80);
-                
-                const link = document.createElement('a');
-                link.href = tempCanvas.toDataURL('image/png');
-                link.download = 'qrcode.png';
-                link.click();
-            } else {
-                const link = document.createElement('a');
-                link.href = canvas.toDataURL('image/png');
-                link.download = 'qrcode.png';
-                link.click();
-            }
+            const display = document.getElementById('qrDisplay');
+            const highQuality = document.getElementById('highQuality').checked;
+            
+            html2canvas(display, {
+                scale: highQuality ? 3 : 2,
+                backgroundColor: null,
+                logging: false
+            }).then(canvas => {
+                canvas.toBlob(blob => {
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'ToolRoom_QRCode_' + Date.now() + '.png';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                }, 'image/png');
+            });
         }
         
         function clearQR() {
-            document.getElementById('qrWrapper').style.display = 'none';
-            document.getElementById('placeholder').classList.remove('hidden');
+            document.getElementById('qrDisplay').style.display = 'none';
+            document.getElementById('placeholder').style.display = 'block';
             document.getElementById('buttonGroup').style.display = 'none';
             document.getElementById('urlValue').value = '';
-            document.getElementById('textValue').value = '';
             document.getElementById('emailValue').value = '';
             document.getElementById('phoneValue').value = '';
             document.getElementById('upiValue').value = '';
             document.getElementById('upiAmount').value = '';
             document.getElementById('ssid').value = '';
             document.getElementById('password').value = '';
+            document.getElementById('smsPhone').value = '';
+            document.getElementById('smsMessage').value = '';
+            document.getElementById('whatsappPhone').value = '';
+            document.getElementById('whatsappMessage').value = '';
+            document.getElementById('latitude').value = '';
+            document.getElementById('longitude').value = '';
+            document.getElementById('vcardName').value = '';
+            document.getElementById('vcardPhone').value = '';
+            document.getElementById('vcardEmail').value = '';
+            document.getElementById('eventName').value = '';
+            document.getElementById('eventLocation').value = '';
+            document.getElementById('eventDateTime').value = '';
             document.getElementById('labelText').value = '';
-            logoImage = null;
             document.getElementById('logoFile').value = '';
+            logo = null;
+            currentCanvas = null;
         }
         
         updateInputs();
+        updateStats();
+        updateHistory();
+        
+        setInterval(() => {
+            const today = new Date().toDateString();
+            const lastReset = localStorage.getItem('lastReset');
+            if(lastReset !== today) {
+                stats.today = 0;
+                localStorage.setItem('lastReset', today);
+                localStorage.setItem('qrStats', JSON.stringify(stats));
+                updateStats();
+            }
+        }, 60000);
     </script>
 </body>
 </html>
