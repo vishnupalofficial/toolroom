@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Free Online Age Calculator (2025) – Calculate Exact Age Instantly</title>
+    <meta name="description" content="Find your exact age in years, months, and days. Includes zodiac sign, next birthday countdown, and more!">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- html2canvas for image generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .gradient-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .card-shadow {
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .result-card {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .hover-scale {
+            transition: transform 0.3s ease;
+        }
+        
+        .hover-scale:hover {
+            transform: scale(1.05);
+        }
+        
+        .emoji-bounce {
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #4CAF50;
+            color: white;
+            padding: 16px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); }
+            to { transform: translateX(0); }
+        }
+        
+        .dark {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        }
+        
+        .dark .bg-white {
+            background-color: #2d3561 !important;
+        }
+        
+        .dark .text-gray-800 {
+            color: #f5f5f5 !important;
+        }
+        
+        .dark .text-gray-600 {
+            color: #d1d5db !important;
+        }
+        
+        .dark .text-gray-700 {
+            color: #e5e7eb !important;
+        }
+        
+        .dark .border-gray-300 {
+            border-color: #4b5563 !important;
+        }
+        
+        .dark .bg-gray-50 {
+            background-color: #374151 !important;
+        }
+        
+        .dark .bg-purple-50 {
+            background-color: #4c1d95 !important;
+        }
+        
+        .dark .bg-blue-50 {
+            background-color: #1e3a8a !important;
+        }
+        
+        .dark .bg-green-50 {
+            background-color: #14532d !important;
+        }
+        
+        .dark .bg-yellow-50 {
+            background-color: #713f12 !important;
+        }
+        
+        .dark .bg-pink-50 {
+            background-color: #831843 !important;
+        }
+        
+        .dark .bg-indigo-50 {
+            background-color: #312e81 !important;
+        }
+        
+        .dark .bg-red-50 {
+            background-color: #7f1d1d !important;
+        }
+        
+        .dark .bg-teal-50 {
+            background-color: #134e4a !important;
+        }
+        
+        .dark .bg-orange-50 {
+            background-color: #7c2d12 !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header with Dark Mode Toggle -->
+    <header class="py-4 px-6">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-2xl md:text-3xl font-bold text-white flex items-center">
+                <span class="emoji-bounce mr-2">🎂</span>
+                Age Calculator
+            </h1>
+            <button id="darkModeToggle" class="bg-white bg-opacity-20 backdrop-blur-md text-white p-2 rounded-full hover:bg-opacity-30 transition-all">
+                <i class="fas fa-moon" id="darkModeIcon"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8 max-w-4xl">
+        <!-- Input Card -->
+        <div class="bg-white rounded-2xl card-shadow p-6 md:p-8 mb-8 transition-all duration-300">
+            <h2 class="text-xl md:text-2xl font-semibold text-gray-800 mb-6 text-center">
+                Calculate Your Age
+            </h2>
+            
+            <div class="grid md:grid-cols-2 gap-6 mb-6">
+                <div>
+                    <label for="dob" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-calendar-alt mr-2"></i>Date of Birth
+                    </label>
+                    <input type="date" id="dob" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all" required>
+                </div>
+                
+                <div>
+                    <label for="currentDate" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-calendar-day mr-2"></i>Current Date
+                    </label>
+                    <input type="date" id="currentDate" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all" required>
+                </div>
+            </div>
+            
+            <button id="calculateBtn" class="w-full gradient-btn text-white font-semibold py-3 px-6 rounded-lg hover-scale transition-all">
+                <i class="fas fa-calculator mr-2"></i>Calculate Age
+            </button>
+        </div>
+
+        <!-- Results Card (Initially Hidden) -->
+        <div id="resultsCard" class="hidden bg-white rounded-2xl card-shadow p-6 md:p-8 mb-8 transition-all duration-300 result-card">
+            <h2 class="text-xl md:text-2xl font-semibold text-gray-800 mb-6 text-center">
+                Your Age Details
+            </h2>
+            
+            <div class="grid md:grid-cols-2 gap-6">
+                <!-- Exact Age -->
+                <div class="bg-purple-50 rounded-xl p-4 hover-scale transition-all">
+                    <div class="flex items-center mb-2">
+                        <i class="fas fa-hourglass-half text-purple-600 mr-2"></i>
+                        <h3 class="font-semibold text-gray-800">Exact Age</h3>
+                    </div>
+                    <p class="text-2xl font-bold text-purple-600" id="exactAge">-</p>
+                </div>
+                
+                <!-- Next Birthday -->
+                <div class="bg-blue-50 rounded-xl p-4 hover-scale transition-all">
+                    <div class="flex items-center mb-2">
+                        <i class="fas fa-birthday-cake text-blue-600 mr-2"></i>
+                        <h3 class="font-semibold text-gray-800">Next Birthday</h3>
+                    </div>
+                    <p class="text-2xl font-bold text-blue-600" id="nextBirthday">-</p>
+                </div>
+                
+                <!-- Day of Birth -->
+                <div class="bg-green-50 rounded-xl p-4 hover-scale transition-all">
+                    <div class="flex items-center mb-2">
+                        <i class="fas fa-calendar-week text-green-600 mr-2"></i>
+                        <h3 class="font-semibold text-gray-800">Day of Birth</h3>
+                    </div>
+                    <p class="text-2xl font-bold text-green-600" id="dayOfBirth">-</p>
+                </div>
+                
+                <!-- Western Zodiac Sign -->
+                <div class="bg-yellow-50 rounded-xl p-4 hover-scale transition-all">
+                    <div class="flex items-center mb-2">
+                        <i class="fas fa-star text-yellow-600 mr-2"></i>
+                        <h3 class="font-semibold text-gray-800">Western Zodiac</h3>
+                    </div>
+                    <p class="text-2xl font-bold text-yellow-600" id="zodiacSign">-</p>
+                </div>
+                
+                <!-- Chinese Zodiac Sign -->
+                <div class="bg-indigo-50 rounded-xl p-4 hover-scale transition-all">
+                    <div class="flex items-center mb-2">
+                        <i class="fas fa-dragon text-indigo-600 mr-2"></i>
+                        <h3 class="font-semibold text-gray-800">Chinese Zodiac</h3>
+                    </div>
+                    <p class="text-2xl font-bold text-indigo-600" id="chineseZodiac">-</p>
+                </div>
+                
+                <!-- Birthstone -->
+                <div class="bg-red-50 rounded-xl p-4 hover-scale transition-all">
+                    <div class="flex items-center mb-2">
+                        <i class="fas fa-gem text-red-600 mr-2"></i>
+                        <h3 class="font-semibold text-gray-800">Birthstone</h3>
+                    </div>
+                    <p class="text-2xl font-bold text-red-600" id="birthstone">-</p>
+                </div>
+                
+                <!-- Birth Flower -->
+                <div class="bg-teal-50 rounded-xl p-4 hover-scale transition-all">
+                    <div class="flex items-center mb-2">
+                        <i class="fas fa-seedling text-teal-600 mr-2"></i>
+                        <h3 class="font-semibold text-gray-800">Birth Flower</h3>
+                    </div>
+                    <p class="text-2xl font-bold text-teal-600" id="birthFlower">-</p>
+                </div>
+                
+                <!-- Upcoming Milestone -->
+                <div class="bg-pink-50 rounded-xl p-4 hover-scale transition-all md:col-span-2">
+                    <div class="flex items-center mb-2">
+                        <i class="fas fa-trophy text-pink-600 mr-2"></i>
+                        <h3 class="font-semibold text-gray-800">Upcoming Milestone</h3>
+                    </div>
+                    <p class="text-2xl font-bold text-pink-600" id="milestone">-</p>
+                </div>
+            </div>
+            
+            <!-- Share and Download Options -->
+            <div class="mt-8 flex flex-wrap justify-center gap-4">
+                <button id="shareWhatsApp" class="bg-green-500 hover:bg-green-600 text-white font-medium py-2 px-4 rounded-lg transition-all">
+                    <i class="fab fa-whatsapp mr-2"></i>Share on WhatsApp
+                </button>
+                <button id="shareFacebook" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-all">
+                    <i class="fab fa-facebook mr-2"></i>Share on Facebook
+                </button>
+                <button id="copyLink" class="bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-lg transition-all">
+                    <i class="fas fa-link mr-2"></i>Copy Link
+                </button>
+                <button id="downloadImage" class="bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 px-4 rounded-lg transition-all">
+                    <i class="fas fa-image mr-2"></i>Download as Image
+                </button>
+                <button id="voiceOutput" class="bg-orange-500 hover:bg-orange-600 text-white font-medium py-2 px-4 rounded-lg transition-all">
+                    <i class="fas fa-volume-up mr-2"></i>Speak Result
+                </button>
+            </div>
+        </div>
+
+        <!-- Age Comparison Tool -->
+        <div class="bg-white rounded-2xl card-shadow p-6 md:p-8 mb-8 transition-all duration-300">
+            <h2 class="text-xl md:text-2xl font-semibold text-gray-800 mb-6 text-center">
+                Age Comparison Tool
+            </h2>
+            
+            <div class="grid md:grid-cols-2 gap-6 mb-6">
+                <div>
+                    <label for="friendDob" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-user-friends mr-2"></i>Friend's Date of Birth
+                    </label>
+                    <input type="date" id="friendDob" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all">
+                </div>
+                
+                <div class="flex items-end">
+                    <button id="compareBtn" class="w-full gradient-btn text-white font-semibold py-3 px-6 rounded-lg hover-scale transition-all">
+                        <i class="fas fa-exchange-alt mr-2"></i>Compare Ages
+                    </button>
+                </div>
+            </div>
+            
+            <div id="comparisonResult" class="hidden bg-orange-50 rounded-xl p-4">
+                <p class="text-xl font-bold text-orange-600" id="comparisonText">-</p>
+            </div>
+        </div>
+
+        <!-- Language Toggle -->
+        <div class="bg-white rounded-2xl card-shadow p-6 md:p-8 mb-8 transition-all duration-300">
+            <h2 class="text-xl md:text-2xl font-semibold text-gray-800 mb-6 text-center">
+                Language / भाषा
+            </h2>
+            
+            <div class="flex justify-center gap-4">
+                <button id="langEnglish" class="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all">
+                    English
+                </button>
+                <button id="langHindi" class="px-6 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-all">
+                    हिंदी
+                </button>
+            </div>
+        </div>
+
+        <!-- Famous People Born on This Day -->
+        <div class="bg-white rounded-2xl card-shadow p-6 md:p-8 mb-8 transition-all duration-300">
+            <h2 class="text-xl md:text-2xl font-semibold text-gray-800 mb-6 text-center">
+                Famous People Born on This Day
+            </h2>
+            
+            <div id="famousPeople" class="grid md:grid-cols-2 gap-4">
+                <div class="flex items-center space-x-3">
+                    <img src="https://picsum.photos/seed/person1/50/50.jpg" alt="Famous Person" class="w-12 h-12 rounded-full">
+                    <div>
+                        <p class="font-semibold text-gray-800">Albert Einstein</p>
+                        <p class="text-sm text-gray-600">Born March 14, 1879</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <img src="https://picsum.photos/seed/person2/50/50.jpg" alt="Famous Person" class="w-12 h-12 rounded-full">
+                    <div>
+                        <p class="font-semibold text-gray-800">Stephen Hawking</p>
+                        <p class="text-sm text-gray-600">Born January 8, 1942</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FAQ Section -->
+        <div class="bg-white rounded-2xl card-shadow p-6 md:p-8 mb-8 transition-all duration-300">
+            <h2 class="text-xl md:text-2xl font-semibold text-gray-800 mb-6 text-center">
+                Frequently Asked Questions
+            </h2>
+            
+            <div class="space-y-4">
+                <div class="border-b border-gray-200 pb-4">
+                    <h3 class="font-semibold text-gray-800 mb-2">
+                        <i class="fas fa-question-circle text-purple-600 mr-2"></i>
+                        How to calculate age online?
+                    </h3>
+                    <p class="text-gray-600">
+                        Simply enter your date of birth and the current date in the input fields above, then click the "Calculate Age" button. Our tool will instantly show you your exact age in years, months, and days, along with additional information like your zodiac sign and next birthday countdown.
+                    </p>
+                </div>
+                
+                <div class="border-b border-gray-200 pb-4">
+                    <h3 class="font-semibold text-gray-800 mb-2">
+                        <i class="fas fa-question-circle text-purple-600 mr-2"></i>
+                        How do I know my zodiac sign?
+                    </h3>
+                    <p class="text-gray-600">
+                        Our age calculator automatically determines your Western zodiac sign based on your date of birth. It also shows your Chinese zodiac animal based on the year you were born.
+                    </p>
+                </div>
+                
+                <div>
+                    <h3 class="font-semibold text-gray-800 mb-2">
+                        <i class="fas fa-question-circle text-purple-600 mr-2"></i>
+                        How to find next birthday countdown?
+                    </h3>
+                    <p class="text-gray-600">
+                        After calculating your age, the tool will show you exactly how many days are left until your next birthday. This countdown is calculated based on your birth date and the current date.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Share This Tool Section -->
+        <div class="bg-white rounded-2xl card-shadow p-6 md:p-8 transition-all duration-300">
+            <h2 class="text-xl md:text-2xl font-semibold text-gray-800 mb-6 text-center">
+                Share This Tool
+            </h2>
+            
+            <div class="flex flex-wrap justify-center gap-4">
+                <button id="shareToolWhatsApp" class="bg-green-500 hover:bg-green-600 text-white font-medium py-2 px-4 rounded-lg transition-all">
+                    <i class="fab fa-whatsapp mr-2"></i>WhatsApp
+                </button>
+                <button id="shareToolFacebook" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-all">
+                    <i class="fab fa-facebook mr-2"></i>Facebook
+                </button>
+                <button id="shareToolTwitter" class="bg-sky-500 hover:bg-sky-600 text-white font-medium py-2 px-4 rounded-lg transition-all">
+                    <i class="fab fa-twitter mr-2"></i>Twitter
+                </button>
+                <button id="shareToolEmail" class="bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-lg transition-all">
+                    <i class="fas fa-envelope mr-2"></i>Email
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="mt-12 py-6 px-6 text-center text-white">
+        <p class="mb-2">© 2023 Age Calculator. All rights reserved.</p>
+        <p class="text-sm opacity-80">Made with <span class="text-red-500">❤️</span> by Your Name</p>
+    </footer>
+
+    <!-- Toast Notification (Initially Hidden) -->
+    <div id="toast" class="toast hidden">
+        <span id="toastMessage">Link copied to clipboard!</span>
+    </div>
+
+    <script>
+        // Initialize variables
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        const darkModeIcon = document.getElementById('darkModeIcon');
+        const calculateBtn = document.getElementById('calculateBtn');
+        const compareBtn = document.getElementById('compareBtn');
+        const resultsCard = document.getElementById('resultsCard');
+        const comparisonResult = document.getElementById('comparisonResult');
+        const dobInput = document.getElementById('dob');
+        const currentDateInput = document.getElementById('currentDate');
+        const friendDobInput = document.getElementById('friendDob');
+        const toast = document.getElementById('toast');
+        const toastMessage = document.getElementById('toastMessage');
+        const langEnglish = document.getElementById('langEnglish');
+        const langHindi = document.getElementById('langHindi');
+        
+        // Set current date as default
+        const today = new Date();
+        currentDateInput.valueAsDate = today;
+        
+        // Translations
+        const translations = {
+            en: {
+                title: "Age Calculator",
+                calculateYourAge: "Calculate Your Age",
+                dateOfBirth: "Date of Birth",
+                currentDate: "Current Date",
+                calculateAge: "Calculate Age",
+                yourAgeDetails: "Your Age Details",
+                exactAge: "Exact Age",
+                nextBirthday: "Next Birthday",
+                dayOfBirth: "Day of Birth",
+                westernZodiac: "Western Zodiac",
+                chineseZodiac: "Chinese Zodiac",
+                birthstone: "Birthstone",
+                birthFlower: "Birth Flower",
+                upcomingMilestone: "Upcoming Milestone",
+                ageComparisonTool: "Age Comparison Tool",
+                friendsDateOfBirth: "Friend's Date of Birth",
+                compareAges: "Compare Ages",
+                language: "Language",
+                famousPeople: "Famous People Born on This Day",
+                faq: "Frequently Asked Questions",
+                shareThisTool: "Share This Tool",
+                howToCalculateAge: "How to calculate age online?",
+                howToKnowZodiac: "How do I know my zodiac sign?",
+                howToFindBirthday: "How to find next birthday countdown?",
+                madeBy: "Made with ❤️ by Your Name"
+            },
+            hi: {
+                title: "उम्र कैलकुलेटर",
+                calculateYourAge: "अपनी उम्र की गणना करें",
+                dateOfBirth: "जन्म तिथि",
+                currentDate: "वर्तमान तिथि",
+                calculateAge: "उम्र की गणना करें",
+                yourAgeDetails: "आपकी उम्र का विवरण",
+                exactAge: "सटीक उम्र",
+                nextBirthday: "अगला जन्मदिन",
+                dayOfBirth: "जन्म का दिन",
+                westernZodiac: "पश्चिमी राशि",
+                chineseZodiac: "चीनी राशि",
+                birthstone: "जन्म पत्थर",
+                birthFlower: "जन्म फूल",
+                upcomingMilestone: "आगामी मील का पत्थर",
+                ageComparisonTool: "उम्र तुलना उपकरण",
+                friendsDateOfBirth: "दोस्त की जन्म तिथि",
+                compareAges: "उम्र की तुलना करें",
+                language: "भाषा",
+                famousPeople: "आज इस दिन पैदा हुए प्रसिद्ध लोग",
+                faq: "अक्सर पूछे जाने वाले प्रश्न",
+                shareThisTool: "यह उपकरण साझा करें",
+                howToCalculateAge: "ऑनलाइन उम्र कैसे गणना करें?",
+                howToKnowZodiac: "मैं अपनी राशि कैसे जान सकता हूं?",
+                howToFindBirthday: "अगले जन्मदिन की गिनती कैसे खोजें?",
+                madeBy: "❤️ के साथ आपके नाम द्वारा बनाया गया"
+            }
+        };
+        
+        let currentLang = 'en';
+        
+        // Dark mode toggle
+        darkModeToggle.addEventListener('click', () => {
+            document.documentElement.classList.toggle('dark');
+            if (document.documentElement.classList.contains('dark')) {
+                darkModeIcon.classList.remove('fa-moon');
+                darkModeIcon.classList.add('fa-sun');
+                localStorage.setItem('darkMode', 'true');
+            } else {
+                darkModeIcon.classList.remove('fa-sun');
+                darkModeIcon.classList.add('fa-moon');
+                localStorage.setItem('darkMode', 'false');
+            }
+        });
+        
+        // Check for saved dark mode preference
+        if (localStorage.getItem('darkMode') === 'true') {
+            document.documentElement.classList.add('dark');
+            darkModeIcon.classList.remove('fa-moon');
+            darkModeIcon.classList.add('fa-sun');
+        }
+        
+        // Language toggle
+        langEnglish.addEventListener('click', () => {
+            currentLang = 'en';
+            updateLanguage();
+            langEnglish.classList.add('bg-blue-500', 'text-white');
+            langEnglish.classList.remove('bg-gray-300', 'text-gray-700');
+            langHindi.classList.remove('bg-blue-500', 'text-white');
+            langHindi.classList.add('bg-gray-300', 'text-gray-700');
+        });
+        
+        langHindi.addEventListener('click', () => {
+            currentLang = 'hi';
+            updateLanguage();
+            langHindi.classList.add('bg-blue-500', 'text-white');
+            langHindi.classList.remove('bg-gray-300', 'text-gray-700');
+            langEnglish.classList.remove('bg-blue-500', 'text-white');
+            langEnglish.classList.add('bg-gray-300', 'text-gray-700');
+        });
+        
+        function updateLanguage() {
+            const t = translations[currentLang];
+            document.querySelector('h1').innerHTML = `<span class="emoji-bounce mr-2">🎂</span>${t.title}`;
+            document.querySelector('#resultsCard h2').textContent = t.yourAgeDetails;
+            document.querySelector('#calculateBtn').innerHTML = `<i class="fas fa-calculator mr-2"></i>${t.calculateAge}`;
+            // Update more elements as needed
+        }
+        
+        // Calculate age function
+        function calculateAge() {
+            const dob = new Date(dobInput.value);
+            const currentDate = new Date(currentDateInput.value);
+            
+            if (!dob || !currentDate) {
+                showToast(currentLang === 'en' ? 'Please enter both dates!' : 'कृपया दोनों तारीखें दर्ज करें!');
+                return;
+            }
+            
+            if (dob > currentDate) {
+                showToast(currentLang === 'en' ? 'Date of birth cannot be in the future!' : 'जन्म तिथि भविष्य में नहीं हो सकती!');
+                return;
+            }
+            
+            // Calculate exact age
+            let years = currentDate.getFullYear() - dob.getFullYear();
+            let months = currentDate.getMonth() - dob.getMonth();
+            let days = currentDate.getDate() - dob.getDate();
+            
+            if (days < 0) {
+                months--;
+                const lastMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 0);
+                days += lastMonth.getDate();
+            }
+            
+            if (months < 0) {
+                years--;
+                months += 12;
+            }
+            
+            // Update exact age display
+            const ageText = currentLang === 'en' 
+                ? `${years} years, ${months} months, ${days} days`
+                : `${years} वर्ष, ${months} महीने, ${days} दिन`;
+            document.getElementById('exactAge').textContent = ageText;
+            
+            // Calculate next birthday
+            const nextBirthday = new Date(currentDate.getFullYear(), dob.getMonth(), dob.getDate());
+            if (nextBirthday < currentDate) {
+                nextBirthday.setFullYear(currentDate.getFullYear() + 1);
+            }
+            
+            const daysUntilBirthday = Math.floor((nextBirthday - currentDate) / (1000 * 60 * 60 * 24));
+            const birthdayText = currentLang === 'en'
+                ? `${daysUntilBirthday} days`
+                : `${daysUntilBirthday} दिन`;
+            document.getElementById('nextBirthday').textContent = birthdayText;
+            
+            // Calculate day of birth
+            const daysOfWeek = currentLang === 'en'
+                ? ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+                : ['रविवार', 'सोमवार', 'मंगलवार', 'बुधवार', 'गुरुवार', 'शुक्रवार', 'शनिवार'];
+            document.getElementById('dayOfBirth').textContent = daysOfWeek[dob.getDay()];
+            
+            // Calculate zodiac sign
+            const zodiacSign = getZodiacSign(dob.getMonth() + 1, dob.getDate());
+            document.getElementById('zodiacSign').textContent = zodiacSign;
+            
+            // Calculate Chinese zodiac
+            const chineseZodiac = getChineseZodiac(dob.getFullYear());
+            document.getElementById('chineseZodiac').textContent = chineseZodiac;
+            
+            // Calculate birthstone
+            const birthstone = getBirthstone(dob.getMonth() + 1);
+            document.getElementById('birthstone').textContent = birthstone;
+            
+            // Calculate birth flower
+            const birthFlower = getBirthFlower(dob.getMonth() + 1);
+            document.getElementById('birthFlower').textContent = birthFlower;
+            
+            // Calculate upcoming milestone
+            const currentAge = years;
+            const milestones = [18, 21, 25, 30, 40, 50, 60, 100];
+            let nextMilestone = null;
+            
+            for (const milestone of milestones) {
+                if (currentAge < milestone) {
+                    nextMilestone = milestone;
+                    break;
+                }
+            }
+            
+            if (nextMilestone) {
+                const yearsToMilestone = nextMilestone - currentAge;
+                const milestoneText = currentLang === 'en'
+                    ? `Turning ${nextMilestone} in ${yearsToMilestone} years`
+                    : `${yearsToMilestone} वर्ष में ${nextMilestone} की उम्र हो रही है`;
+                document.getElementById('milestone').textContent = milestoneText;
+            } else {
+                document.getElementById('milestone').textContent = currentLang === 'en'
+                    ? 'No upcoming milestones'
+                    : 'कोई आगामी मील का पत्थर नहीं';
+            }
+            
+            // Show results card with animation
+            resultsCard.classList.remove('hidden');
+            resultsCard.classList.add('fade-in');
+            
+            // Scroll to results
+            resultsCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+        
+        // Get zodiac sign based on month and day
+        function getZodiacSign(month, day) {
+            const zodiacSigns = [
+                { name: 'Capricorn', startMonth: 12, startDay: 22, endMonth: 1, endDay: 19 },
+                { name: 'Aquarius', startMonth: 1, startDay: 20, endMonth: 2, endDay: 18 },
+                { name: 'Pisces', startMonth: 2, startDay: 19, endMonth: 3, endDay: 20 },
+                { name: 'Aries', startMonth: 3, startDay: 21, endMonth: 4, endDay: 19 },
+                { name: 'Taurus', startMonth: 4, startDay: 20, endMonth: 5, endDay: 20 },
+                { name: 'Gemini', startMonth: 5, startDay: 21, endMonth: 6, endDay: 20 },
+                { name: 'Cancer', startMonth: 6, startDay: 21, endMonth: 7, endDay: 22 },
+                { name: 'Leo', startMonth: 7, startDay: 23, endMonth: 8, endDay: 22 },
+                { name: 'Virgo', startMonth: 8, startDay: 23, endMonth: 9, endDay: 22 },
+                { name: 'Libra', startMonth: 9, startDay: 23, endMonth: 10, endDay: 22 },
+                { name: 'Scorpio', startMonth: 10, startDay: 23, endMonth: 11, endDay: 21 },
+                { name: 'Sagittarius', startMonth: 11, startDay: 22, endMonth: 12, endDay: 21 }
+            ];
+            
+            for (const sign of zodiacSigns) {
+                if (
+                    (month === sign.startMonth && day >= sign.startDay) ||
+                    (month === sign.endMonth && day <= sign.endDay)
+                ) {
+                    return sign.name;
+                }
+            }
+            
+            return 'Unknown';
+        }
+        
+        // Get Chinese zodiac based on year
+        function getChineseZodiac(year) {
+            const zodiacs = ['Rat', 'Ox', 'Tiger', 'Rabbit', 'Dragon', 'Snake', 'Horse', 'Goat', 'Monkey', 'Rooster', 'Dog', 'Pig'];
+            return zodiacs[(year - 4) % 12];
+        }
+        
+        // Get birthstone based on month
+        function getBirthstone(month) {
+            const birthstones = [
+                'Garnet', 'Amethyst', 'Aquamarine', 'Diamond', 'Emerald', 'Pearl',
+                'Ruby', 'Peridot', 'Sapphire', 'Opal', 'Topaz', 'Turquoise'
+            ];
+            return birthstones[month - 1];
+        }
+        
+        // Get birth flower based on month
+        function getBirthFlower(month) {
+            const birthFlowers = [
+                'Carnation', 'Violet', 'Daffodil', 'Daisy', 'Lily of the Valley', 'Rose',
+                'Larkspur', 'Gladiolus', 'Aster', 'Marigold', 'Chrysanthemum', 'Poinsettia'
+            ];
+            return birthFlowers[month - 1];
+        }
+        
+        // Compare ages function
+        function compareAges() {
+            const dob = new Date(dobInput.value);
+            const friendDob = new Date(friendDobInput.value);
+            
+            if (!dob || !friendDob) {
+                showToast(currentLang === 'en' ? 'Please enter both dates!' : 'कृपया दोनों तारीखें दर्ज करें!');
+                return;
+            }
+            
+            const diffTime = Math.abs(dob - friendDob);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            const diffYears = Math.floor(diffDays / 365);
+            const diffMonths = Math.floor((diffDays % 365) / 30);
+            const remainingDays = diffDays % 30;
+            
+            let comparisonText;
+            if (dob < friendDob) {
+                comparisonText = currentLang === 'en'
+                    ? `You are ${diffYears} years, ${diffMonths} months, and ${remainingDays} days older than your friend.`
+                    : `आप अपने दोस्त से ${diffYears} वर्ष, ${diffMonths} महीने, और ${remainingDays} दिन बड़े हैं।`;
+            } else {
+                comparisonText = currentLang === 'en'
+                    ? `Your friend is ${diffYears} years, ${diffMonths} months, and ${remainingDays} days older than you.`
+                    : `आपका दोस्त आपसे ${diffYears} वर्ष, ${diffMonths} महीने, और ${remainingDays} दिन बड़ा है।`;
+            }
+            
+            document.getElementById('comparisonText').textContent = comparisonText;
+            comparisonResult.classList.remove('hidden');
+            comparisonResult.classList.add('fade-in');
+            
+            // Scroll to comparison result
+            comparisonResult.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+        
+        // Show toast notification
+        function showToast(message) {
+            toastMessage.textContent = message;
+            toast.classList.remove('hidden');
+            
+            setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 3000);
+        }
+        
+        // Calculate button click event
+        calculateBtn.addEventListener('click', calculateAge);
+        
+        // Compare button click event
+        compareBtn.addEventListener('click', compareAges);
+        
+        // Share on WhatsApp
+        document.getElementById('shareWhatsApp').addEventListener('click', () => {
+            const ageText = document.getElementById('exactAge').textContent;
+            const message = currentLang === 'en'
+                ? `Check out my age! I'm ${ageText} old. Calculate your age at ${window.location.href}`
+                : `मेरी उम्र देखें! मैं ${ageText} का हूं। अपनी उम्र की गणना करें ${window.location.href}`;
+            window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
+        });
+        
+        // Share on Facebook
+        document.getElementById('shareFacebook').addEventListener('click', () => {
+            window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`, '_blank');
+        });
+        
+        // Copy link
+        document.getElementById('copyLink').addEventListener('click', () => {
+            navigator.clipboard.writeText(window.location.href);
+            showToast(currentLang === 'en' ? 'Link copied to clipboard!' : 'लिंक क्लिपबोर्ड पर कॉपी हो गया!');
+        });
+        
+        // Download as image
+        document.getElementById('downloadImage').addEventListener('click', () => {
+            html2canvas(resultsCard).then(canvas => {
+                const link = document.createElement('a');
+                link.download = 'age-calculator-result.png';
+                link.href = canvas.toDataURL();
+                link.click();
+                showToast(currentLang === 'en' ? 'Image downloaded successfully!' : 'छवि सफलतापूर्वक डाउनलोड हो गई!');
+            });
+        });
+        
+        // Voice output
+        document.getElementById('voiceOutput').addEventListener('click', () => {
+            if ('speechSynthesis' in window) {
+                const exactAge = document.getElementById('exactAge').textContent;
+                const nextBirthday = document.getElementById('nextBirthday').textContent;
+                const zodiacSign = document.getElementById('zodiacSign').textContent;
+                const chineseZodiac = document.getElementById('chineseZodiac').textContent;
+                
+                const text = currentLang === 'en'
+                    ? `Your exact age is ${exactAge}. Your next birthday is in ${nextBirthday}. Your Western zodiac sign is ${zodiacSign} and your Chinese zodiac is ${chineseZodiac}.`
+                    : `आपकी सटीक उम्र ${exactAge} है। आपका अगला जन्मदिन ${nextBirthday} में है। आपकी पश्चिमी राशि ${zodiacSign} है और आपकी चीनी राशि ${chineseZodiac} है।`;
+                
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = currentLang === 'en' ? 'en-US' : 'hi-IN';
+                speechSynthesis.speak(utterance);
+            } else {
+                showToast(currentLang === 'en' ? 'Speech synthesis not supported in your browser.' : 'आपके ब्राउज़र में भाषण संश्लेषण समर्थित नहीं है।');
+            }
+        });
+        
+        // Share tool on WhatsApp
+        document.getElementById('shareToolWhatsApp').addEventListener('click', () => {
+            const message = currentLang === 'en'
+                ? `Check out this amazing Age Calculator tool! ${window.location.href}`
+                : `इस शानदार उम्र कैलकुलेटर टूल को देखें! ${window.location.href}`;
+            window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
+        });
+        
+        // Share tool on Facebook
+        document.getElementById('shareToolFacebook').addEventListener('click', () => {
+            window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`, '_blank');
+        });
+        
+        // Share tool on Twitter
+        document.getElementById('shareToolTwitter').addEventListener('click', () => {
+            const message = currentLang === 'en'
+                ? 'Check out this amazing Age Calculator tool!'
+                : 'इस शानदार उम्र कैलकुलेटर टूल को देखें!';
+            window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(message)}&url=${encodeURIComponent(window.location.href)}`, '_blank');
+        });
+        
+        // Share tool via Email
+        document.getElementById('shareToolEmail').addEventListener('click', () => {
+            const subject = currentLang === 'en'
+                ? 'Check out this Age Calculator tool'
+                : 'इस उम्र कैलकुलेटर टूल को देखें';
+            const body = currentLang === 'en'
+                ? `I found this amazing Age Calculator tool that calculates your exact age, zodiac sign, and more. Check it out: ${window.location.href}`
+                : `मुझे यह शानदार उम्र कैलकुलेटर टूल मिला जो आपकी सटीक उम्र, राशि और बहुत कुछ गणना करता है। इसे देखें: ${window.location.href}`;
+            window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+        });
+    </script>
+</body>
+</html>
