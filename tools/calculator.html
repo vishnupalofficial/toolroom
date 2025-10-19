@@ -21,6 +21,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            overflow-x: hidden;
         }
 
         .container {
@@ -30,6 +31,7 @@
             border-radius: 20px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
             overflow: hidden;
+            overflow-x: hidden;
         }
 
         .header {
@@ -774,7 +776,17 @@
                     <div class="chart-container">
                         <h3>राशि विभाजन</h3>
                         <div class="chart">
-                            <div class="pie-chart" id="intPieChart">
+                            <div class="pie-chart" id="intPieChart" style="cursor: pointer;">
+                                <svg width="100%" height="100%" style="position: absolute; top: 0; left: 0;">
+                                    <path id="intGreenPath" d="" fill="transparent" style="cursor: pointer;" 
+                                          onclick="toggleSection('int', 'green')"
+                                          onmouseenter="showPrincipal('int')" 
+                                          onmouseleave="showTotal('int')"/>
+                                    <path id="intRedPath" d="" fill="transparent" style="cursor: pointer;" 
+                                          onclick="toggleSection('int', 'red')"
+                                          onmouseenter="showInterest('int')" 
+                                          onmouseleave="showTotal('int')"/>
+                                </svg>
                                 <div class="chart-center-label">
                                     <div class="amount" id="intCenterAmount">₹5,40,000</div>
                                     <div class="label" id="intCenterLabel">कुल वापसी</div>
@@ -783,6 +795,7 @@
                         </div>
                         <div class="chart-legend">
                             <div class="legend-item" 
+                                 onclick="toggleSection('int', 'green')"
                                  onmouseenter="showPrincipal('int')" 
                                  onmouseleave="showTotal('int')" 
                                  style="padding: 10px; border-radius: 8px; cursor: pointer; transition: all 0.3s;">
@@ -790,6 +803,7 @@
                                 <span><strong>प्राप्त राशि:</strong> ₹<span id="intPieDisbursed">4,50,000</span></span>
                             </div>
                             <div class="legend-item" 
+                                 onclick="toggleSection('int', 'red')"
                                  onmouseenter="showInterest('int')" 
                                  onmouseleave="showTotal('int')" 
                                  style="padding: 10px; border-radius: 8px; cursor: pointer; transition: all 0.3s;">
@@ -891,12 +905,57 @@
         let currentTab = 'emi';
         let pieData = { total: 644400, principal: 500000, interest: 144400 };
         let intPieData = { total: 540000, disbursed: 450000, interest: 90000 };
+        let pieLocked = { pie: false, int: false };
 
         function formatNumber(num) {
             return num.toLocaleString('en-IN', {maximumFractionDigits: 0});
         }
 
+        function updateChartPaths(chartId, angle) {
+            const size = 250;
+            const center = size / 2;
+            const radius = size / 2;
+            const angleRad = (angle * Math.PI) / 180;
+
+            const x = center + radius * Math.sin(angleRad);
+            const y = center - radius * Math.cos(angleRad);
+
+            const largeArc = angle > 180 ? 1 : 0;
+
+            // Green path (principal)
+            const greenPath = `M ${center},${center} L ${center},0 A ${radius},${radius} 0 ${largeArc},1 ${x},${y} Z`;
+            
+            // Red path (interest)
+            const redPath = `M ${center},${center} L ${x},${y} A ${radius},${radius} 0 ${1-largeArc},1 ${center},0 Z`;
+
+            if (chartId === 'pieChart') {
+                document.getElementById('pieGreenPath').setAttribute('d', greenPath);
+                document.getElementById('pieRedPath').setAttribute('d', redPath);
+            } else {
+                document.getElementById('intGreenPath').setAttribute('d', greenPath);
+                document.getElementById('intRedPath').setAttribute('d', redPath);
+            }
+        }
+
+        function toggleSection(type, color) {
+            const isLocked = pieLocked[type];
+            
+            if (isLocked) {
+                pieLocked[type] = false;
+                showTotal(type);
+            } else {
+                pieLocked[type] = true;
+                if (color === 'green') {
+                    showPrincipal(type);
+                } else {
+                    showInterest(type);
+                }
+            }
+        }
+
         function showPrincipal(type) {
+            if (pieLocked[type]) return;
+            
             if (type === 'pie') {
                 const centerAmount = document.getElementById('pieCenterAmount');
                 const centerLabel = document.getElementById('pieCenterLabel');
@@ -915,6 +974,8 @@
         }
 
         function showInterest(type) {
+            if (pieLocked[type]) return;
+            
             if (type === 'pie') {
                 const centerAmount = document.getElementById('pieCenterAmount');
                 const centerLabel = document.getElementById('pieCenterLabel');
@@ -933,6 +994,8 @@
         }
 
         function showTotal(type) {
+            if (pieLocked[type]) return;
+            
             if (type === 'pie') {
                 const centerAmount = document.getElementById('pieCenterAmount');
                 const centerLabel = document.getElementById('pieCenterLabel');
@@ -978,9 +1041,11 @@
             const principalPercentage = (principal / totalAmount) * 100;
             const principalAngle = (principalPercentage / 100) * 360;
             document.getElementById('pieChart').style.setProperty('--principal-angle', principalAngle + 'deg');
+            updateChartPaths('pieChart', principalAngle);
             
             // Update pie data
             pieData = { total: totalAmount, principal: principal, interest: totalInterest };
+            pieLocked.pie = false;
             document.getElementById('pieCenterAmount').textContent = '₹' + formatNumber(totalAmount);
             document.getElementById('pieCenterLabel').textContent = 'कुल भुगतान';
             document.getElementById('piePrincipal').textContent = formatNumber(principal);
@@ -1090,9 +1155,11 @@
             const disbursedPercentage = (disbursed / totalRepayment) * 100;
             const disbursedAngle = (disbursedPercentage / 100) * 360;
             document.getElementById('intPieChart').style.setProperty('--principal-angle', disbursedAngle + 'deg');
+            updateChartPaths('intPieChart', disbursedAngle);
             
             // Update int pie data
             intPieData = { total: totalRepayment, disbursed: disbursed, interest: displayInterest };
+            pieLocked.int = false;
             document.getElementById('intCenterAmount').textContent = '₹' + formatNumber(totalRepayment);
             document.getElementById('intCenterLabel').textContent = 'कुल वापसी';
             document.getElementById('intPieDisbursed').textContent = formatNumber(disbursed);
